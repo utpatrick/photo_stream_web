@@ -1,0 +1,6 @@
+indexes:
+- kind: PictureStream
+  ancestor: yes
+  properties:
+  - name: date
+    direction: desc
