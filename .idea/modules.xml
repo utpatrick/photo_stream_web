@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/EE382V_Sparrow.iml" filepath="$PROJECT_DIR$/.idea/EE382V_Sparrow.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../appengine-guestbook-python/.idea/appengine-guestbook-python.iml" filepath="$PROJECT_DIR$/../appengine-guestbook-python/.idea/appengine-guestbook-python.iml" />
     </modules>
   </component>
 </project>

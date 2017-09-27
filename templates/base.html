@@ -16,9 +16,12 @@
 
     <body>
     <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-            <div class="container">
-                <a class="navbar-brand" href="#">Connext.us</a>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="navbar-brand" href="#">Connex.us</a>
+                    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+                </div>
             </div>
         </nav>
     <!-- Header -->
