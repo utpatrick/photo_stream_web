@@ -15,6 +15,31 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 # [END imports]
+
+# [START mainlogin page]
+
+class MainLoginPage(webapp2.RequestHandler):
+
+    def get(self):
+
+        user = users.get_current_user()
+        if user:
+            url = users.create_logout_url(self.request.uri)
+            url_linktext = 'Logout'
+        else:
+            url = users.create_login_url(self.request.uri)
+            url_linktext = 'Login'
+
+        template_values = {
+            'user': user,
+            'url': url,
+            'url_linktext': url_linktext,
+        }
+
+        template = JINJA_ENVIRONMENT.get_template('templates/page_template.html')
+        self.response.write(template.render(template_values))
+# [END mainlogin page]
+
 # [START manage page]
 class ManagePage(webapp2.RequestHandler):
 
@@ -25,7 +50,6 @@ class ManagePage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/page_template.html')
         self.response.write(template.render(template_value))
 # [END manage page]
-
 
 # [START create page]
 class CreatePage(webapp2.RequestHandler):
@@ -98,12 +122,13 @@ class ErrorPage(webapp2.RequestHandler):
 
 # [START app]
 app = webapp2.WSGIApplication([
+    ('/', MainLoginPage),
     ('/manage', ManagePage),
     ('/create', CreatePage),
     ('/view', ViewPage),
     ('/search', SearchPage),
     ('/trending', TrendingPage),
     ('/social', SocialPage),
-    ('/error', ErrorPage),
+    ('/error', ErrorPage)
 ], debug=True)
 # [END app]
