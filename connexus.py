@@ -3,6 +3,7 @@
 # [START imports]
 import os
 import urllib
+import model
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
