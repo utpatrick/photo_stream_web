@@ -1,0 +1,16 @@
+{% extends "templates/base.html" %}
+{% block content %}
+<div class="form-group">
+    <form action="/create" method="post" enctype="multipart/form-data">
+        <p>Name your stream:</p>
+        <input class="form-control form-control-lg" type="text" name="streamname">
+        <p>Add subscribers:</p>
+        <textarea class="form-control form-control-lg" type="text" name="sub" rows="3"></textarea>
+        <p>Tag your stream:</p>
+        <input class="form-control form-control-lg" type="text" name="tag">
+        <p>Url to cover image</p>
+        <input class="form-control form-control-lg" type="text" name="cover">
+        <input class="btn btn-primary" type="submit" value="Create Stream">
+    </form>
+</div>
+{% endblock %}

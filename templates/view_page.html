@@ -1,0 +1,23 @@
+{% extends "templates/base.html" %}
+{% block content %}
+    {% for img_id in img_ids %}
+    <div>
+        <img src="/image?img_id={{ img_id }}">
+        <p>this is imgae {{ img_id }}</p>
+    </div>
+    {% endfor %}
+    <form action="/view" method="post" enctype="multipart/form-data" onsubmit="/view">
+        Name your photo:<br>
+        <input type="text" name="title"><br>
+        Coment:<br>
+        <input type="text" name="comment"><br>
+        Stream name:<br>
+        <input type="text" name="steamname"><br>
+        Add photo:<br>
+        <input type="file" name="img">
+        <input type="submit" >
+    </form>
+    <p class="important">
+        {{greeting}}
+    </p>
+{% endblock %}

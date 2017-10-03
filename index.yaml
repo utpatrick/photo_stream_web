@@ -1,6 +1,27 @@
 indexes:
-- kind: PictureStream
-  ancestor: yes
+- kind: Photo
+  ancestor: no
   properties:
-  - name: date
+  - name: owner
+  - name: img_id
+  - name: stream_name
+  - name: title
+  - name: comment
+  - name: last_update
+  - name: content
     direction: desc
+
+- kind: Stream
+  ancestor: no
+  properties:
+  - name: stream_name
+  - name: last_update
+  - name: tag
+
+- kind: User
+  ancestor: no
+  properties:
+  - name: user_id
+  - name: stream_list
+  - name: subscribe_list
+  - name: photo_counts
