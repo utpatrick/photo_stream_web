@@ -1,0 +1,27 @@
+{% extends "templates/base.html" %}
+{% block content %}
+
+    <style type="text/css">
+        tr.hide_all > td, td.hide_all{
+        border-style:hidden;
+        }
+    </style>
+
+    <table id="stream-all" class="table nowrap" border="0" width="100%">
+        <tbody>
+            <tr class="hide_all">
+            {% for stream_id in stream_ids %}
+                <td>
+                    <form action="" method="post">
+                        <button name="stream_id" value="{{ stream_id }}">{{ stream_id }}</button>
+                    </form>
+                </td>
+            {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+
+    <p class="important">
+        {{greeting}}
+    </p>
+{% endblock %}

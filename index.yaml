@@ -1,6 +1,6 @@
 indexes:
 - kind: Photo
-  ancestor: no
+  ancestor: yes
   properties:
   - name: owner
   - name: img_id
@@ -12,7 +12,7 @@ indexes:
     direction: desc
 
 - kind: Stream
-  ancestor: no
+  ancestor: yes
   properties:
   - name: stream_name
   - name: last_update

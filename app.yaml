@@ -26,6 +26,10 @@ handlers:
   script: connexus.app
   login: required
 
+- url: /view_one
+  script: connexus.app
+  login: required
+
 - url: /search
   script: connexus.app
   login: required
