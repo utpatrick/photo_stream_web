@@ -10,10 +10,10 @@
     <table id="stream-all" class="table nowrap" border="0" width="100%">
         <tbody>
             <tr class="hide_all">
-            {% for stream_id in stream_ids %}
+            {% for s in streams %}
                 <td>
                     <form action="" method="post">
-                        <button name="stream_id" value="{{ stream_id }}">{{ stream_id }}</button>
+                        <button name="stream_id" value="{{ s.stream_name }}">{{ s.stream_name }}</button>
                     </form>
                 </td>
             {% endfor %}

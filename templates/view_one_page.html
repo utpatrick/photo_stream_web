@@ -2,10 +2,11 @@
 {% block content %}
     {% for img_id in img_ids %}
     <div>
-        <img src="/image?img_id={{ img_id }}">
-        <p>this is image {{ img_id }}</p>
+        <img src="/image?img_id={{ img_id.key.urlsafe() }}">
+        <p>this is image {{ img_id.key }}</p>
     </div>
     {% endfor %}
+    {if}
     <form action="/view_one?stream={{ stream_name }}" method="post" enctype="multipart/form-data">
         Name your photo:<br>
         <input type="text" name="title"><br>
@@ -14,7 +15,11 @@
         Add photo:<br>
         <input type="file" name="img" value="Choose file">
         <br><br>
-        <input type="submit" value="Upload this photo">
+        <input type="submit" name="submit_btn" value="Upload this photo">
+    </form>
+
+    <form action="/view_one?stream={{ stream_name }}" method="post" enctype="multipart/form-data">
+        <input type="submit" name="submit_btn" value="Subscribe this stream">
     </form>
     <p class="important">
         {{greeting}}
