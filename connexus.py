@@ -30,8 +30,11 @@ class MainLoginPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
-        template_values = url_dict
-        template = JINJA_ENVIRONMENT.get_template('templates/page_template.html')
+        template_input = {
+            'greeting': 'Log in before browsing this website!'
+        }
+        template_values = model.merge_two_dicts(template_input, url_dict)
+        template = JINJA_ENVIRONMENT.get_template('templates/main_login_page.html')
         self.response.write(template.render(template_values))
 # [END mainlogin page]
 
@@ -146,27 +149,43 @@ class ViewOnePage(webapp2.RequestHandler):
         title = self.request.get('title')
         content = self.request.get('img')
         status = self.request.get('submit_btn')
+        loaded_photo = self.request.get('loaded')
+        loaded_photo = int(loaded_photo)
+
         if status == "Upload this photo":
             model.add_photo(user.user_id(), stream_name, title, comment, content)
         elif status == "Subscribe this stream":
             model.subscribe_to_stream(stream_name, user.user_id())
             print("subscription success!")
+        elif status == "More photos":
+            loaded_photo += 3
         # should use ancestor query, will change it later
         time.sleep(1)
-        self.redirect('/view_one?stream=' + stream_name)
+        self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
 
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
-        photo_ids = model.get_photo_by_stream(stream_name, user.user_id())
+        loaded_photo = self.request.get('loaded', default_value='3')
+
+        photos = model.get_photo_by_stream(stream_name, user.user_id())
+        photo_ids = sorted(photos, key=lambda x: x.last_update, reverse=True)
+
+        loaded_photo = int(loaded_photo)
+
+        if loaded_photo > len(photo_ids):
+            loaded_photo = len(photo_ids)
+        photo_ids = photo_ids[:loaded_photo]
+
         is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
         model.add_view_counts(stream_name)
         template_input = {
             'is_owner': is_owner,
             'greeting': 'this is the view page',
             'img_ids': photo_ids,
-            'stream_name': stream_name
+            'stream_name': stream_name,
+            'loaded': loaded_photo
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_one_page.html')
