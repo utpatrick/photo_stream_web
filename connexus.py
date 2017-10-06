@@ -84,7 +84,7 @@ class CreatePage(webapp2.RequestHandler):
 
         email_content = self.request.get('email_content')
         for subscriber in email_list:
-            mail.send_mail(sender = "xiaocs1@utexas.com",to = subscriber,subject = "Welcome to Connexus!",body = email_content)
+            mail.send_mail(sender = "xs2948@connex-xiaocheng.appspotmail.com",to = subscriber,subject = "Welcome to Connexus!",body = email_content)
 
         template_value = {
             'greeting': 'this is the create page'
