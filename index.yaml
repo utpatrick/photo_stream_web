@@ -27,7 +27,7 @@ indexes:
   - name: photo_counts
 
 - kind: View
-  ancestor: yes
+  ancestor: no
   properties:
   - name: up_stream
   - name: time_stamp

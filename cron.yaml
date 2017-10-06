@@ -1,0 +1,16 @@
+cron:
+- description: 5 minutes updating stats
+  url: /updatetrending
+  schedule: every 5 minutes
+
+- description: send email digest per 5 minutes job
+  url: /digest5min
+  schedule: every 5 minutes
+
+- description: send email digest per 1 hour job
+  url: /digest1hr
+  schedule: every 1 hours
+
+- description: send email digest per 24 hour job
+  url: /digest24hr
+  schedule: every 24 hours
