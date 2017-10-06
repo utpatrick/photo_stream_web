@@ -88,21 +88,15 @@ class CreatePage(webapp2.RequestHandler):
             cover_image_url = DEFAULT_IMAGE_URL
         result = model.create_stream(stream_name, cover_image_url, tag, user.user_id())
         if result:
-            template = JINJA_ENVIRONMENT.get_template('templates/error_page.html')
-            self.response.write(template.render({'error_message': 'stream name: '
-                                                                  + stream_name + ' is already occupied!'}))
+            self.redirect('/error?stream=' + stream_name)
             return
-        email_content = self.request.get('email_content')
-        for subscriber in email_list:
 
-            mail.send_mail(sender="xs2948@connex-xiaocheng.appspotmail.com", to=subscriber,
-                           subject="Welcome to Connexus!", body=email_content)
         template_value = {
             'greeting': 'this is the create page'
         }
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
         self.response.write(template.render(template_value))
-        time.sleep(1)
+        time.sleep(0.5)
         self.redirect('/manage')
 
     def get(self):
@@ -156,7 +150,6 @@ class ViewOnePage(webapp2.RequestHandler):
             model.add_photo(user.user_id(), stream_name, title, comment, content)
         elif status == "Subscribe this stream":
             model.subscribe_to_stream(stream_name, user.user_id())
-            print("subscription success!")
         elif status == "More photos":
             loaded_photo += 3
         # should use ancestor query, will change it later
@@ -285,8 +278,10 @@ class ErrorPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+        stream_name = self.request.get('stream')
         template_input = {
-            'greeting': 'this is the error page'
+            'greeting': 'this is the error page',
+            'error_message': 'stream name: '+ stream_name + ' is already occupied!'
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/error_page.html')
