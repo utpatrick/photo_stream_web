@@ -17,6 +17,7 @@
     </head>
 
     <body>
+
     <!-- Navigation -->
         <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
             <div class="navbar-inner">
@@ -29,6 +30,11 @@
         <header class="menu-header">
             <div class="container">
                 <ul class="list-inline menu-button">
+                    <li class="list-inline-item">
+                        <a href="{{ url|safe }}" class="btn btn-secondary btn-lg">
+                            <span class="network-name">{{ url_linktext }}</span>
+                        </a>
+                    </li>
                     <li class="list-inline-item">
                         <a href="/manage" class="btn btn-secondary btn-lg">
                             <span class="network-name">Manage</span>
@@ -57,11 +63,6 @@
                     <li class="list-inline-item">
                         <a href="/social" class="btn btn-secondary btn-lg">
                             <span class="network-name">Social</span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="{{ url|safe }}" class="btn btn-secondary btn-lg">
-                            <span class="network-name">{{ url_linktext }}</span>
                         </a>
                     </li>
                 </ul>

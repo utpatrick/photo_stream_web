@@ -288,6 +288,7 @@ class Image(webapp2.RequestHandler):
             self.response.out.write('No image')
 
 
+
 class UpdateTrendingPage(webapp2.RequestHandler):
     def get(self):
         model.update_views_in_past_hour()
@@ -306,6 +307,7 @@ class SendDigest1Hr(webapp2.RequestHandler):
 class SendDigest24Hr(webapp2.RequestHandler):
     def get(self):
         model.send_digest_24_hr()
+
 
 
 # [START app]
