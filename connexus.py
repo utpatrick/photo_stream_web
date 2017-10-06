@@ -275,6 +275,6 @@ app = webapp2.WSGIApplication([
     ('/trending', TrendingPage),
     ('/social', SocialPage),
     ('/error', ErrorPage),
-    ('/image', Image),
+    ('/image', Image)
 ], debug=True)
 # [END app]
