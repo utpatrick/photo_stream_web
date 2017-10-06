@@ -2,16 +2,19 @@ from google.appengine.api import images
 from google.appengine.ext import ndb
 from google.appengine.api import search
 from google.appengine.api import app_identity
+from google.appengine.api import users
 
 import os
 import webapp2
 import time
+import datetime
 
 
 class User(ndb.Model):
     user_id = ndb.StringProperty()
     subscribes_list = ndb.StringProperty(repeated=True)
     photo_counts = ndb.IntegerProperty()
+    trending_setting = ndb.StringProperty(choices=('no', 'per_5min', 'per_1hr', 'per_1day'))
 
 
 class Stream(ndb.Model):
@@ -33,8 +36,13 @@ class Photo(ndb.Model):
     content = ndb.BlobProperty()
 
 
+class View(ndb.Model):
+    time_stamp = ndb.DateTimeProperty(auto_now_add=True)
+    up_stream = ndb.KeyProperty(kind=Stream)
+
+
 def create_user(id):
-    user = User(user_id=id, photo_counts=0)
+    user = User(user_id=id, photo_counts=0, trending_setting='no')
     user.put()
     return user
 
@@ -74,23 +82,31 @@ def get_subscribed_stream(id):
 def subscribe_to_stream(stream_name, id):
     user = get_user(id)
     user.subscribes_list.append(stream_name)
-    print(user.subscribes_list)
     user.put()
 
 
 def unsubscribe_to_stream(stream_name_list, id):
     user = get_user(id)
-    print(stream_name_list)
-    print(user.subscribes_list)
     for stream_name in stream_name_list:
         user.subscribes_list.remove(stream_name)
     user.put()
 
 
+def get_views_in_past_hour(stream_name):
+    stream = get_stream_by_name(stream_name)
+    views = View.query(Photo.up_stream == stream.key)
+    time_1hr_ago = datetime.datetime.utcnow() + datetime.timedelta(hours=-1)
+    views.filter(ndb.GenericProperty("time_stamp") > time_1hr_ago)
+    view_count = views.count()
+    return view_count
+
+
 def add_view_counts(stream_name):
     stream = get_stream_by_name(stream_name)
-    stream.views +=1
+    stream.views += 1
+    new_view = View(up_stream=stream.key)
     stream.put()
+    new_view.put()
 
 
 # search function
@@ -98,6 +114,28 @@ def search_stream(keyword):
     streams = Stream.query(ndb.OR(Stream.stream_name == keyword, Stream.tags == keyword))
     stream_list = streams.fetch()
     return stream_list
+
+
+def check_if_login(get, user):
+    if user:
+        url = users.create_logout_url(get.request.uri)
+        url_linktext = 'Logout'
+    else:
+        url = users.create_login_url(get.request.uri)
+        url_linktext = 'Login'
+    template_values = {
+        'user': user,
+        'url': url,
+        'url_linktext': url_linktext,
+    }
+    return template_values
+
+
+def merge_two_dicts(x, y):
+    """Given two dicts, merge them into a new dict as a shallow copy."""
+    z = x.copy()
+    z.update(y)
+    return z
 
 
 def get_photo_by_stream(stream_name, id):

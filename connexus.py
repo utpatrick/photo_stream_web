@@ -23,27 +23,15 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 # [START mainlogin page]
 DEFAULT_STREAM_NAME = 'new_stream'
-DEFAULT_IMAGE_URL = '/static/83TUFUOY.jpeg'
+DEFAULT_IMAGE_URL = '/static/default_product.gif'
 
 class MainLoginPage(webapp2.RequestHandler):
 
     def get(self):
-
         user = users.get_current_user()
-        if user:
-            url = users.create_logout_url(self.request.uri)
-            url_linktext = 'Logout'
-        else:
-            url = users.create_login_url(self.request.uri)
-            url_linktext = 'Login'
-
-        template_values = {
-            'user': user,
-            'url': url,
-            'url_linktext': url_linktext,
-        }
-
-        template = JINJA_ENVIRONMENT.get_template('templates/base.html')
+        url_dict = model.check_if_login(self, user)
+        template_values = url_dict
+        template = JINJA_ENVIRONMENT.get_template('templates/page_template.html')
         self.response.write(template.render(template_values))
 # [END mainlogin page]
 
@@ -65,14 +53,16 @@ class ManagePage(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
         streams = model.get_stream_list_by_user(user.user_id())
         sub_streams = model.get_subscribed_stream(user.user_id())
-        template_value = {
+        template_input = {
             'streams': streams,
             'sub_streams': sub_streams,
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/manage_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 # [END manage page]
 
 
@@ -93,7 +83,8 @@ class CreatePage(webapp2.RequestHandler):
 
         email_content = self.request.get('email_content')
         for subscriber in email_list:
-            mail.send_mail(sender = "xs2948@connex-xiaocheng.appspotmail.com",to = subscriber,subject = "Welcome to Connexus!",body = email_content)
+            mail.send_mail(sender="xs2948@connex-xiaocheng.appspotmail.com", to=subscriber,
+                           subject="Welcome to Connexus!", body=email_content)
 
         template_value = {
             'greeting': 'this is the create page'
@@ -105,11 +96,13 @@ class CreatePage(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
-        template_value = {
+        url_dict = model.check_if_login(self, user)
+        template_input = {
             'greeting': 'this is the the create page'
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 # [END create page]
 
 
@@ -123,15 +116,15 @@ class ViewPage(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
         streams = model.get_all_stream()
-        for s in streams:
-            print(s.cover_image)
-        template_value = {
+        template_input = {
             'greeting': 'this is the view page',
             'streams': streams
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_all_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 # [END view all page]
 
 
@@ -156,18 +149,20 @@ class ViewOnePage(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
         photo_ids = model.get_photo_by_stream(stream_name, user.user_id())
         is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
         model.add_view_counts(stream_name)
-        template_value = {
+        template_input = {
             'is_owner': is_owner,
             'greeting': 'this is the view page',
             'img_ids': photo_ids,
             'stream_name': stream_name
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_one_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 # [END view one page]
 
 
@@ -175,24 +170,32 @@ class ViewOnePage(webapp2.RequestHandler):
 class SearchPage(webapp2.RequestHandler):
 
     def post(self):
-        keyword = self.request.get('search_str')
-        self.redirect('/search?keyword=' + keyword)
+        user = users.get_current_user()
+        stream_name = self.request.get('stream_id')
+        status = self.request.get('submit_btn')
+        if status == "go_search":
+            keyword = self.request.get('search_str')
+            self.redirect('/search?keyword=' + keyword)
+        else:
+            self.redirect('/view_one?stream=' + stream_name)
+
 
     def get(self):
         user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
         keyword = self.request.get('keyword')
 
         if keyword:
-            x = model.search_stream(keyword)
-            print(x)
+            stream_found = model.search_stream(keyword)
         else:
-            x = []
-        template_value = {
+            stream_found = []
+        template_input = {
             'greeting': 'this is the search page',
-            'stream_list': x
+            'stream_list': stream_found
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/search_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 
 # [END search page]
 
@@ -200,13 +203,22 @@ class SearchPage(webapp2.RequestHandler):
 # [START trending page]
 class TrendingPage(webapp2.RequestHandler):
 
+    def post(self):
+        status = self.request.get('submit_btn')
+        if status == "trial":
+            view_count = model.get_views_in_past_hour("fffff")
+            print(view_count)
+            self.redirect('/trending')
+
     def get(self):
         user = users.get_current_user()
-        template_value = {
+        url_dict = model.check_if_login(self, user)
+        template_input = {
             'greeting': 'this is the trending page'
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/trending_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 # [END trending page]
 
 
@@ -214,11 +226,14 @@ class TrendingPage(webapp2.RequestHandler):
 class SocialPage(webapp2.RequestHandler):
 
     def get(self):
-        template_value = {
+        user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
+        template_input = {
             'greeting': 'this is the social page'
         }
+        template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/social_page.html')
-        self.response.write(template.render(template_value))
+        self.response.write(template.render(template_values))
 # [END social page]
 
 
@@ -226,11 +241,14 @@ class SocialPage(webapp2.RequestHandler):
 class ErrorPage(webapp2.RequestHandler):
 
     def get(self):
-        template_value = {
+        user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
+        template_input = {
             'greeting': 'this is the error page'
         }
-        template = JINJA_ENVIRONMENT.get_template('templates/page_template.html')
-        self.response.write(template.render(template_value))
+        template_values = model.merge_two_dicts(template_input, url_dict)
+        template = JINJA_ENVIRONMENT.get_template('templates/error_page.html')
+        self.response.write(template.render(template_values))
 # [END error page]
 
 

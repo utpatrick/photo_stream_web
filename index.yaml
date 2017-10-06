@@ -25,3 +25,9 @@ indexes:
   - name: stream_list
   - name: subscribe_list
   - name: photo_counts
+
+- kind: View
+  ancestor: yes
+  properties:
+  - name: up_stream
+  - name: time_stamp
