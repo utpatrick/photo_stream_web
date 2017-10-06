@@ -71,7 +71,7 @@ def get_all_stream():
 
 def send_email(subject, receivers, email_content):
     for receiver in receivers:
-        mail.send_mail(sender="patrick@minitrial-181200.appspotmail.com", to=receiver,
+        mail.send_mail(sender="patrick@connex-xiaocheng.appspotmail.com", to=receiver,
                        subject=subject, body=email_content)
 
 
