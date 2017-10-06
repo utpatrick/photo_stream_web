@@ -9,6 +9,7 @@ import re
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
+from google.appengine.api import mail
 from google.appengine.api import search
 
 import jinja2
@@ -82,7 +83,17 @@ class CreatePage(webapp2.RequestHandler):
         cover_image_url = self.request.get('cover_image_url')
         if cover_image_url == '':
             cover_image_url = DEFAULT_IMAGE_URL
-        model.create_stream(stream_name, cover_image_url, tag, user.user_id())
+        result = model.create_stream(stream_name, cover_image_url, tag, user.user_id())
+        if result:
+            template = JINJA_ENVIRONMENT.get_template('templates/error_page.html')
+            self.response.write(template.render({'error_message': 'stream name: '
+                                                                  + stream_name + ' is already occupied!'}))
+            return
+        email_content = self.request.get('email_content')
+        for subscriber in email_list:
+
+            mail.send_mail(sender="xs2948@connex-xiaocheng.appspotmail.com", to=subscriber,
+                           subject="Welcome to Connexus!", body=email_content)
         template_value = {
             'greeting': 'this is the create page'
         }

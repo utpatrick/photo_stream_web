@@ -51,11 +51,11 @@ def create_user(id):
     return user
 
 
-def get_user(id):
-    curr_user = User.query(User.user_id == id)
+def get_user(user_id):
+    curr_user = User.query(User.user_id == user_id)
     user = curr_user.get()
     if not user:
-        user = create_user(id)
+        user = create_user(user_id)
     return user
 
 
@@ -202,7 +202,6 @@ def merge_two_dicts(x, y):
 
 
 def get_photo_by_stream(stream_name, id):
-    user = get_user(id)
     stream = get_stream_by_name(stream_name)
     photos = Photo.query(Photo.up_stream == stream.key)
     photo_list = []
@@ -213,12 +212,15 @@ def get_photo_by_stream(stream_name, id):
 
 def create_stream(stream_name, cover_image_url, tag, id):
     user = get_user(id)
-    new_stream = Stream(owner=user.key, tags=tag, stream_name=stream_name,
-                        photo_counts=0, total_views=0, views_in_last_hour=0,
-                        cover_image=cover_image_url)
-    print("this: {}".format(cover_image_url))
-    user.put()
-    new_stream.put()
+    check_existing = Stream.query(Stream.stream_name==stream_name)
+    if check_existing.get():
+        return 1
+    else:
+        new_stream = Stream(owner=user.key, tags=tag, stream_name=stream_name,
+                        photo_counts=0, totel_views=0, views_in_last_hour=0,
+                            cover_image=cover_image_url)
+        new_stream.put()
+        return 0
 
 
 def add_photo(id, stream_name, title, comment, content):
@@ -238,7 +240,7 @@ def get_photo(img_key):
 
 
 def get_photo_id_for_user(user_id):
-    user = get_user(id)
+    user = get_user(user_id)
     photos = Photo.query(Photo.owner == user.key)
     photo_id_list = []
     for photo in photos.fetch(6):
@@ -246,27 +248,29 @@ def get_photo_id_for_user(user_id):
     return photo_id_list
 
 
-def delete_photo_by_stream(stream_name, id):
-    user = get_user(id)
+def delete_photo_by_stream(stream_name, user_id):
+    user = get_user(user_id)
     stream = get_stream_by_name(stream_name)
-    tbdPhotoQ = Photo.query(Photo.up_stream == stream.key)
-    tbdPhotoKey = tbdPhotoQ.get().key
-    tbdPhotoKey.delete()
+    tbd_photo_q = Photo.query(Photo.up_stream == stream.key)
+    tbd_photo_key = tbd_photo_q.get().key
+    tbd_photo_key.delete()
 
 
-def delete_stream(stream_name_list, id):
-    user = get_user(id)
+def delete_stream(stream_name_list, user_id):
+    user = get_user(user_id)
     count = 0
     for stream_name in stream_name_list:
-        tbdStreamQ = Stream.query(Stream.stream_name == stream_name, Stream.owner == user.key)
-        tbdStreamKey = tbdStreamQ.get().key
-        photo_counts = tbdStreamQ.get().photo_counts
-        if photo_counts != 0:
-            delete_photo_by_stream(stream_name, user.user_id)
-            count += photo_counts
-        tbdStreamKey.delete()
-    user.photo_counts -= count
-    user.put()
+        tbd_stream_q = Stream.query(Stream.stream_name == stream_name, Stream.owner == user.key)
+        if tbd_stream_q.get():
+            tbd_stream_key = tbd_stream_q.get().key
+            photo_counts = tbd_stream_q.get().photo_counts
+            if photo_counts != 0:
+                delete_photo_by_stream(stream_name, user_id)
+                count += photo_counts
+            tbd_stream_key.delete()
+    if count:
+        user.photo_counts -= count
+        user.put()
 
 
 def get_cover_image_url(stream_name):
