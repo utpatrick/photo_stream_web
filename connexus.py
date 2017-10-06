@@ -9,7 +9,6 @@ import re
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
-from google.appengine.api import mail
 from google.appengine.api import search
 
 import jinja2
@@ -75,17 +74,15 @@ class CreatePage(webapp2.RequestHandler):
         sub = self.request.get('sub', default_value='')
         r = re.compile(r"[\w\.-]+@[\w\.-]+")
         email_list = r.findall(sub)
+        subject = "Welcome to Connexus!"
+        email_content = self.request.get('email_content')
+        model.send_email(subject, email_list, email_content)
+
         tag = self.request.get('tag', default_value='').split("[\s#]")
         cover_image_url = self.request.get('cover_image_url')
         if cover_image_url == '':
             cover_image_url = DEFAULT_IMAGE_URL
         model.create_stream(stream_name, cover_image_url, tag, user.user_id())
-
-        email_content = self.request.get('email_content')
-        for subscriber in email_list:
-            mail.send_mail(sender="xs2948@connex-xiaocheng.appspotmail.com", to=subscriber,
-                           subject="Welcome to Connexus!", body=email_content)
-
         template_value = {
             'greeting': 'this is the create page'
         }
@@ -179,7 +176,6 @@ class SearchPage(webapp2.RequestHandler):
         else:
             self.redirect('/view_one?stream=' + stream_name)
 
-
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
@@ -204,17 +200,33 @@ class SearchPage(webapp2.RequestHandler):
 class TrendingPage(webapp2.RequestHandler):
 
     def post(self):
-        status = self.request.get('submit_btn')
-        if status == "trial":
-            view_count = model.get_views_in_past_hour("fffff")
-            print(view_count)
+        user = users.get_current_user()
+        stream_name = self.request.get('stream_id')
+        if stream_name:
+            self.redirect('/view_one?stream=' + stream_name)
+        else:
+            new_trending_setting = self.request.get('new_trending_setting')
+            model.update_user_trending_setting(user.user_id(), new_trending_setting)
+            time.sleep(0.1)
             self.redirect('/trending')
 
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+        model.update_views_in_past_hour()
+        time.sleep(1)
+        streams = model.get_all_recent_stream()
+        sorted_streams = sorted(streams, key=lambda x: x.views_in_last_hour, reverse=True)
+        num_of_streams = len(sorted_streams)
+        if num_of_streams >= 3:
+            num_of_streams = 3
+            sorted_streams = sorted_streams[:3]
+        trending_setting = model.get_trending_setting(user.user_id())
         template_input = {
-            'greeting': 'this is the trending page'
+            'greeting': 'this is the trending page',
+            'trending_setting': trending_setting,
+            'trending_streams': sorted_streams,
+            'num_of_streams': num_of_streams
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/trending_page.html')
@@ -265,6 +277,26 @@ class Image(webapp2.RequestHandler):
             self.response.out.write('No image')
 
 
+class UpdateTrendingPage(webapp2.RequestHandler):
+    def get(self):
+        model.update_views_in_past_hour()
+
+
+class SendDigest5Min(webapp2.RequestHandler):
+    def get(self):
+        model.send_digest_5_min()
+
+
+class SendDigest1Hr(webapp2.RequestHandler):
+    def get(self):
+        model.send_digest_1_hr()
+
+
+class SendDigest24Hr(webapp2.RequestHandler):
+    def get(self):
+        model.send_digest_24_hr()
+
+
 # [START app]
 app = webapp2.WSGIApplication([
     ('/', MainLoginPage),
@@ -276,6 +308,10 @@ app = webapp2.WSGIApplication([
     ('/trending', TrendingPage),
     ('/social', SocialPage),
     ('/error', ErrorPage),
-    ('/image', Image)
+    ('/image', Image),
+    ('/updatetrending',UpdateTrendingPage),
+    ('/digest5min', SendDigest5Min),
+    ('/digest1hr', SendDigest1Hr),
+    ('/digest24hr', SendDigest24Hr)
 ], debug=True)
 # [END app]

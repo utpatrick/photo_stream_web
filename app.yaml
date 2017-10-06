@@ -49,6 +49,19 @@ handlers:
 - url: /image
   script: connexus.app
   login: required
+
+- url: /updatetrending
+  script: connexus.app
+
+- url: /digest5min
+  script: connexus.app
+
+- url: /digest1hr
+  script: connexus.app
+
+- url: /digest24hr
+  script: connexus.app
+
 # [END handlers]
 
 # [START libraries]
