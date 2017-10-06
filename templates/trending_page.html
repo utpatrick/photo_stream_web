@@ -38,6 +38,7 @@
                         <td><input type="radio" name="digest_rate" value="no">No Report</td>
                         {% endif %}
                     </label>
+                    <br>
 
                     <label class="radio-inline">
                         {% if digest_rate == 'per_5min' %}
@@ -46,6 +47,7 @@
                         <td><input type="radio" name="digest_rate" value="per_5min">Every 5 minutes</td>
                         {% endif %}
                     </label>
+                    <br>
 
                     <label class="radio-inline">
                         {% if digest_rate == 'per_1hr' %}
@@ -54,6 +56,7 @@
                         <td><input type="radio" name="digest_rate" value="per_1hr">Every 1 hour</td>
                         {% endif %}
                     </label>
+                    <br>
 
                     <label class="radio-inline">
                         {% if digest_rate == 'per_1day' %}
@@ -62,10 +65,13 @@
                         <td><input type="radio" name="digest_rate" value="per_1day">Every day</td>
                         {% endif %}
                     </label>
+                    <br>
+                    <br>
 
                     <h4>Email trending report</h4>
 
                 </div>
+                <br>
 
                 <div class="form-group">
                     <input class="btn btn-info" type="submit" value="Update Rate">

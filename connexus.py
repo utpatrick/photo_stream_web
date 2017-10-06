@@ -43,7 +43,7 @@ class MainLoginPage(webapp2.RequestHandler):
             'url_linktext': url_linktext,
         }
 
-        template = JINJA_ENVIRONMENT.get_template('templates/page_template.html')
+        template = JINJA_ENVIRONMENT.get_template('templates/base.html')
         self.response.write(template.render(template_values))
 # [END mainlogin page]
 
@@ -246,7 +246,6 @@ class Image(webapp2.RequestHandler):
         else:
             self.response.out.write('No image')
 
-
 # [START app]
 app = webapp2.WSGIApplication([
     ('/', MainLoginPage),
@@ -258,6 +257,6 @@ app = webapp2.WSGIApplication([
     ('/trending', TrendingPage),
     ('/social', SocialPage),
     ('/error', ErrorPage),
-    ('/image', Image)
+    ('/image', Image),
 ], debug=True)
 # [END app]
