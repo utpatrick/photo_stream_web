@@ -6,7 +6,7 @@
         <p>this is image {{ img_id.key }}</p>
     </div>
     {% endfor %}
-    {if}
+    {% if is_owner %}
     <form action="/view_one?stream={{ stream_name }}" method="post" enctype="multipart/form-data">
         Name your photo:<br>
         <input type="text" name="title"><br>
@@ -17,7 +17,7 @@
         <br><br>
         <input type="submit" name="submit_btn" value="Upload this photo">
     </form>
-
+    {% endif %}
     <form action="/view_one?stream={{ stream_name }}" method="post" enctype="multipart/form-data">
         <input type="submit" name="submit_btn" value="Subscribe this stream">
     </form>

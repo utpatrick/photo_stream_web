@@ -21,8 +21,8 @@ class Stream(ndb.Model):
     last_update = ndb.DateTimeProperty(auto_now=True)
     photo_counts = ndb.IntegerProperty()
     cover_image = ndb.StringProperty()
-    nums_of_view = ndb.IntegerProperty()
-    tags = ndb.StringProperty()
+    views = ndb.IntegerProperty()
+    tags = ndb.StringProperty(repeated=True)
 
 
 class Photo(ndb.Model):
@@ -34,7 +34,7 @@ class Photo(ndb.Model):
 
 
 def create_user(id):
-    user = User(user_id=id, subscribes_list=[], photo_counts=0)
+    user = User(user_id=id, photo_counts=0)
     user.put()
     return user
 
@@ -65,21 +65,33 @@ def get_stream_list_by_user(id):
 
 def get_subscribed_stream(id):
     user = get_user(id)
-    subscribed_list = []
-    for sub_id in user.subscribes_list:
-        subscribed_list.append(sub_id)
-    return subscribed_list
+    subscribed_stream_list = []
+    for s in user.subscribes_list:
+        subscribed_stream_list.append(get_stream_by_name(s))
+    return subscribed_stream_list
 
 
-'''
-def get_subscriber(stream_name):
+def subscribe_to_stream(stream_name, id):
     user = get_user(id)
-    list = []
-    for sub_id in user.subscribe_list:
-        sub = get_user(sub_id)
-        #list.append(sub.stream_list)
-    return list
-'''
+    user.subscribes_list.append(stream_name)
+    print(user.subscribes_list)
+    user.put()
+
+
+def unsubscribe_to_stream(stream_name_list, id):
+    user = get_user(id)
+    print(stream_name_list)
+    print(user.subscribes_list)
+    for stream_name in stream_name_list:
+        user.subscribes_list.remove(stream_name)
+    user.put()
+
+
+def add_view_counts(stream_name):
+    stream = get_stream_by_name(stream_name)
+    stream.views +=1
+    stream.put()
+
 
 # search function
 def search_stream(keyword):
@@ -98,9 +110,11 @@ def get_photo_by_stream(stream_name, id):
     return photo_list
 
 
-def create_stream(stream_name, sub, tag, id):
+def create_stream(stream_name, cover_image_url, tag, id):
     user = get_user(id)
-    new_stream = Stream(tags=tag, owner=user.key, stream_name=stream_name, photo_counts=0, nums_of_view=0)
+    new_stream = Stream(owner=user.key, tags=tag, stream_name=stream_name,
+                        photo_counts=0, views=0, cover_image=cover_image_url)
+    print("this: {}".format(cover_image_url))
     user.put()
     new_stream.put()
 
@@ -151,3 +165,8 @@ def delete_stream(stream_name_list, id):
         tbdStreamKey.delete()
     user.photo_counts -= count
     user.put()
+
+
+def get_cover_image_url(stream_name):
+    stream = get_stream_by_name(stream_name)
+    return stream.cover_image

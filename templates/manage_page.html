@@ -3,58 +3,59 @@
 <div>
     <h3>Streams I own</h3>
     <form action="" method="post">
-    <table id="stream-table" class="table table-striped table-bordered nowrap" width="100%">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Last time edit</th>
-                <th>Number of photos</th>
-                <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set count = 1 %}
-            {% for s in streams %}
-            <tr>
-                <th>{{ s.stream_name }}</th>
-                <th>{{ s.last_update }}</th>
-                <th>{{ s.photo_counts }}</th>
-                <th><input type="checkbox" name="delete_status" value="{{s.stream_name}}"/></th>
-                {% set count = count + 1 %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <button class="btn btn-primary" id="delete_stream">Delete Checked Streams</button>
+        <table id="stream-table" class="table table-striped table-bordered nowrap" width="100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last time edit</th>
+                    <th>Number of photos</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set count = 1 %}
+                {% for s in streams %}
+                <tr>
+                    <th>{{ s.stream_name }}</th>
+                    <th>{{ s.last_update }}</th>
+                    <th>{{ s.photo_counts }}</th>
+                    <th><input type="checkbox" name="delete_status" value="{{s.stream_name}}"/></th>
+                    {% set count = count + 1 %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn btn-primary" name="submit_btn" value="delete_stream">Delete Checked Streams</button>
     </form>
     <br>
     <h3>Streams I subscribe to</h3>
-    <table id="subscribe-table" class="table table-striped table-bordered nowrap" width="100%">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Last time edit</th>
-                <th>Number of photos</th>
-                <th>Views</th>
-                <th>Unsubscribe</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% set count = 1 %}
-            {% for s in sub_streams %}
-            <tr>
-                <th>{{ s.stream_name }}</th>
-                <th>{{ s.last_update }}</th>
-                <th>{{ s.photo_counts }}</th>
-                <th>{{ s.views }}</th>
-                <th><input type="checkbox" name="name{{count}}" /></th>
-                {% set count = count + 1 %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <button class="btn btn-primary" id="unsubscribe_stream">Unsubscribe Checked Streams</button>
-
+    <form action="" method="post">
+        <table id="subscribe-table" class="table table-striped table-bordered nowrap" width="100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last time edit</th>
+                    <th>Number of photos</th>
+                    <th>Views</th>
+                    <th>Unsubscribe</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% set count = 1 %}
+                {% for s in sub_streams %}
+                <tr>
+                    <th>{{ s.stream_name }}</th>
+                    <th>{{ s.last_update }}</th>
+                    <th>{{ s.photo_counts }}</th>
+                    <th>{{ s.views }}</th>
+                    <th><input type="checkbox" name="unsubscribe_status" value="{{s.stream_name}}"/></th>
+                    {% set count = count + 1 %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button class="btn btn-primary" name="submit_btn" value="unsubscribe_stream">Unsubscribe Checked Streams</button>
+    </form>
 </div>
 
 {% endblock %}

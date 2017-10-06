@@ -23,6 +23,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 # [START mainlogin page]
 DEFAULT_STREAM_NAME = 'new_stream'
+DEFAULT_IMAGE_URL = '/static/83TUFUOY.jpeg'
 
 class MainLoginPage(webapp2.RequestHandler):
 
@@ -52,8 +53,13 @@ class ManagePage(webapp2.RequestHandler):
 
     def post(self):
         user = users.get_current_user()
-        stream_name = self.request.get_all('delete_status')
-        model.delete_stream(stream_name, user.user_id())
+        status = self.request.get('submit_btn')
+        if status == "delete_stream":
+            stream_names = self.request.get_all('delete_status')
+            model.delete_stream(stream_names, user.user_id())
+        elif status == "unsubscribe_stream":
+            stream_names = self.request.get_all('unsubscribe_status')
+            model.unsubscribe_to_stream(stream_names, user.user_id())
         time.sleep(1)
         self.redirect('/manage')
 
@@ -75,12 +81,15 @@ class CreatePage(webapp2.RequestHandler):
 
     def post(self):
         user = users.get_current_user()
-        stream_name = self.request.get('stream_name', DEFAULT_STREAM_NAME)
-        sub = self.request.get('sub', '')
+        stream_name = self.request.get('stream_name')
+        sub = self.request.get('sub', default_value='')
         r = re.compile(r"[\w\.-]+@[\w\.-]+")
         email_list = r.findall(sub)
-        tag = self.request.get('tag', '')
-        model.create_stream(stream_name, sub, tag, user.user_id())
+        tag = self.request.get('tag', default_value='').split("[\s#]")
+        cover_image_url = self.request.get('cover_image_url')
+        if cover_image_url == '':
+            cover_image_url = DEFAULT_IMAGE_URL
+        model.create_stream(stream_name, cover_image_url, tag, user.user_id())
 
         email_content = self.request.get('email_content')
         for subscriber in email_list:
@@ -115,6 +124,8 @@ class ViewPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         streams = model.get_all_stream()
+        for s in streams:
+            print(s.cover_image)
         template_value = {
             'greeting': 'this is the view page',
             'streams': streams
@@ -137,6 +148,7 @@ class ViewOnePage(webapp2.RequestHandler):
         if status == "Upload this photo":
             model.add_photo(user.user_id(), stream_name, title, comment, content)
         elif status == "Subscribe this stream":
+            model.subscribe_to_stream(stream_name, user.user_id())
             print("subscription success!")
         # should use ancestor query, will change it later
         time.sleep(1)
@@ -146,10 +158,8 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
         photo_ids = model.get_photo_by_stream(stream_name, user.user_id())
-        print(model.get_stream_by_name(stream_name).owner)
-        print(model.get_user(user.user_id()).key)
         is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
-        print(is_owner)
+        model.add_view_counts(stream_name)
         template_value = {
             'is_owner': is_owner,
             'greeting': 'this is the view page',
