@@ -82,7 +82,7 @@ class CreatePage(webapp2.RequestHandler):
         email_content = self.request.get('email_content')
         model.send_email(subject, email_list, email_content)
 
-        tag = self.request.get('tag', default_value='').split("[\s#]")
+        tag = self.request.get('tag', default_value='').split("[\s#,]")
         cover_image_url = self.request.get('cover_image_url')
         if cover_image_url == '':
             cover_image_url = DEFAULT_IMAGE_URL
@@ -140,20 +140,23 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
         comment = self.request.get('comment')
-        title = self.request.get('title')
-        content = self.request.get('img')
+        title = self.request.get('title', '')
+        content = self.request.get('img', '')
         status = self.request.get('submit_btn')
-        loaded_photo = self.request.get('loaded')
+        loaded_photo = self.request.get('loaded', default_value='3')
         loaded_photo = int(loaded_photo)
 
         if status == "Upload this photo":
-            model.add_photo(user.user_id(), stream_name, title, comment, content)
+            result = model.add_photo(user.user_id(), stream_name, title, comment, content)
+            if result:
+                self.redirect('/error?photo=invalid')
+                return
         elif status == "Subscribe this stream":
             model.subscribe_to_stream(stream_name, user.user_id())
         elif status == "More photos":
             loaded_photo += 3
         # should use ancestor query, will change it later
-        time.sleep(1)
+        time.sleep(0.25)
         self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
 
     def get(self):
@@ -168,8 +171,10 @@ class ViewOnePage(webapp2.RequestHandler):
         loaded_photo = int(loaded_photo)
 
         if loaded_photo > len(photo_ids):
-            loaded_photo = len(photo_ids)
-        photo_ids = photo_ids[:loaded_photo]
+            nums_photo = len(photo_ids)
+        else:
+            nums_photo = loaded_photo
+        photo_ids = photo_ids[:nums_photo]
 
         is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
         model.add_view_counts(stream_name)
@@ -236,8 +241,9 @@ class TrendingPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
-        model.update_views_in_past_hour()
-        time.sleep(1)
+
+        # model.update_views_in_past_hour() will run by cron.yaml every 5 min
+
         streams = model.get_all_recent_stream()
         sorted_streams = sorted(streams, key=lambda x: x.views_in_last_hour, reverse=True)
         num_of_streams = len(sorted_streams)
@@ -279,10 +285,13 @@ class ErrorPage(webapp2.RequestHandler):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
+        photo = self.request.get('photo')
         template_input = {
             'greeting': 'this is the error page',
             'error_message': 'stream name: '+ stream_name + ' is already occupied!'
         }
+        if photo:
+            template_input['error_message'] = 'photo ' + photo
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/error_page.html')
         self.response.write(template.render(template_values))

@@ -214,8 +214,6 @@ def get_photo_by_stream(stream_name, id):
 def create_stream(stream_name, cover_image_url, tag, id):
     user = get_user(id)
     check_existing = get_stream_by_name(stream_name)
-    print("here")
-    print(check_existing)
     if check_existing:
         return 1
     else:
@@ -228,13 +226,18 @@ def create_stream(stream_name, cover_image_url, tag, id):
 
 def add_photo(id, stream_name, title, comment, content):
     user = get_user(id)
-    stream = get_stream_by_name(stream_name)
-    stream.photo_counts += 1
-    user.photo_counts += 1
-    new_photo = Photo(up_stream=stream.key, title=title, comment=comment, content=content)
-    new_photo.put()
-    stream.put()
-    user.put()
+    any_empty = (title == '' or content == '')
+    if any_empty:
+        return 1
+    else:
+        stream = get_stream_by_name(stream_name)
+        stream.photo_counts += 1
+        user.photo_counts += 1
+        new_photo = Photo(up_stream=stream.key, title=title, comment=comment, content=content)
+        new_photo.put()
+        stream.put()
+        user.put()
+        return 0
 
 
 def get_photo(img_key):

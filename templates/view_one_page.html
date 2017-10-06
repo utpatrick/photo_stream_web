@@ -13,12 +13,14 @@
     <br>
     {% if is_owner %}
     <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        Name your photo:<br>
+        Name your photo(*):<br>
         <input type="text" name="title"><br>
-        Coment:<br>
+        Comment:<br>
         <input type="text" name="comment"><br>
-        Add photo:<br>
+        Add photo(*):<br>
         <input type="file" name="img" value="Choose file">
+        <br>
+        * = required
         <br><br>
         <input type="submit" name="submit_btn" value="Upload this photo">
     </form>
