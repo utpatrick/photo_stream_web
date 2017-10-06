@@ -13,7 +13,7 @@
                     <input type="text" id="search_str" size=50 value="" name="search_str" class="form-control" placeholder="Type search keywords here">
                 </div>
                 <div class="form-group">
-                <button id="search_btn" type="submit" class="btn btn-primary">&nbsp;<i class="glyphicon glyphicon-search"></i> Search &nbsp;</button>
+                <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">&nbsp;<i class="glyphicon glyphicon-search"></i> Search &nbsp;</button>
                 </div>
             </form>
         <br>
@@ -22,10 +22,10 @@
     <div class="container">
         {% for s in stream_list %}
         <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-            <a class="thumbnail" href="/update_cookies?stream_key={{ s['key'].urlsafe() }}">
-                <img class="img-responsive" src="{{ s['cover_photo_url'] }}" alt="" height="200" width="300">
-                <h4 align="center">{{ s['name'] }}</h4>
-            </a>
+            <form action="/search" method="post">
+                <input name="stream_id" type="image" value="{{ s.stream_name }}" src="{{ s.cover_image }}" alt="" height="200" width="300">
+                <h4 align="center">{{ s.stream_name }}</h4>
+            </form>
         </div>
         {% endfor %}
     </div>
