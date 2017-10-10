@@ -71,7 +71,7 @@ def get_all_stream():
 
 def send_email(subject, receivers, email_content):
     for receiver in receivers:
-        mail.send_mail(sender="patrick@connex-xiaocheng.appspotmail.com", to=receiver,
+        mail.send_mail(sender="sparrows@minitrial-181200.appspotmail.com", to=receiver,
                        subject=subject, body=email_content)
 
 
@@ -164,6 +164,7 @@ def get_trending_setting(id):
     setting = user.trending_setting
     return setting
 
+
 def add_view_counts(stream_name):
     stream = get_stream_by_name(stream_name)
     stream.total_views += 1
@@ -212,26 +213,31 @@ def get_photo_by_stream(stream_name, id):
 
 def create_stream(stream_name, cover_image_url, tag, id):
     user = get_user(id)
-    check_existing = Stream.query(Stream.stream_name==stream_name)
-    if check_existing.get():
+    check_existing = get_stream_by_name(stream_name)
+    if check_existing:
         return 1
     else:
         new_stream = Stream(owner=user.key, tags=tag, stream_name=stream_name,
-                        photo_counts=0, totel_views=0, views_in_last_hour=0,
-                            cover_image=cover_image_url)
+                        photo_counts=0, total_views=0, views_in_last_hour=0,
+                        cover_image=cover_image_url)
         new_stream.put()
         return 0
 
 
 def add_photo(id, stream_name, title, comment, content):
     user = get_user(id)
-    stream = get_stream_by_name(stream_name)
-    stream.photo_counts += 1
-    user.photo_counts += 1
-    new_photo = Photo(up_stream=stream.key, title=title, comment=comment, content=content)
-    new_photo.put()
-    stream.put()
-    user.put()
+    any_empty = (title == '' or content == '')
+    if any_empty:
+        return 1
+    else:
+        stream = get_stream_by_name(stream_name)
+        stream.photo_counts += 1
+        user.photo_counts += 1
+        new_photo = Photo(up_stream=stream.key, title=title, comment=comment, content=content)
+        new_photo.put()
+        stream.put()
+        user.put()
+        return 0
 
 
 def get_photo(img_key):
