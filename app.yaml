@@ -24,19 +24,15 @@ handlers:
 
 - url: /view
   script: connexus.app
-  login: required
 
 - url: /view_one
   script: connexus.app
-  login: required
 
 - url: /search
   script: connexus.app
-  login: required
 
 - url: /trending
   script: connexus.app
-  login: required
 
 - url: /social
   script: connexus.app
@@ -48,7 +44,6 @@ handlers:
 
 - url: /image
   script: connexus.app
-  login: required
 
 - url: /updatetrending
   script: connexus.app
@@ -62,6 +57,10 @@ handlers:
 - url: /digest24hr
   script: connexus.app
 
+# Path variables
+- url: /resources
+  static_dir: resources
+
 # [END handlers]
 
 # [START libraries]
@@ -71,4 +70,6 @@ libraries:
 - name: jinja2
   version: latest
 # [END libraries]
+
+
 

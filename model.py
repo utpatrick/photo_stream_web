@@ -4,11 +4,13 @@ from google.appengine.api import search
 from google.appengine.api import app_identity
 from google.appengine.api import users
 from google.appengine.api import mail
+from faker import Faker
 
 import os
 import webapp2
 import time
 import datetime
+import json
 
 
 class User(ndb.Model):
@@ -37,6 +39,7 @@ class Photo(ndb.Model):
     comment = ndb.StringProperty()
     last_update = ndb.DateTimeProperty(auto_now_add=True)
     content = ndb.BlobProperty()
+    geo_info = ndb.GeoPtProperty()
 
 
 class View(ndb.Model):
@@ -202,7 +205,7 @@ def merge_two_dicts(x, y):
     return z
 
 
-def get_photo_by_stream(stream_name, id):
+def get_photo_by_stream(stream_name):
     stream = get_stream_by_name(stream_name)
     photos = Photo.query(Photo.up_stream == stream.key)
     photo_list = []
@@ -282,3 +285,11 @@ def delete_stream(stream_name_list, user_id):
 def get_cover_image_url(stream_name):
     stream = get_stream_by_name(stream_name)
     return stream.cover_image
+
+
+def shuffle_stream_geo_info(stream_name):
+    fake_gps = Faker()
+    photos = get_photo_by_stream(stream_name)
+    for photo in photos:
+        photo.geo_info = ndb.GeoPt(fake_gps.latitude(), fake_gps.longitude())
+        photo.put()

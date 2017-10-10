@@ -1,35 +1,181 @@
 {% extends "templates/base.html" %}
 {% block content %}
-    {% for img_id in img_ids %}
-    <div>
-        <img src="/image?img_id={{ img_id.key.urlsafe() }}">
-        <p>this is image {{ img_id.key }}</p>
-    </div>
-    {% endfor %}
-    <br>
-    <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        <input type="submit" name="submit_btn" value="More photos">
-    </form>
-    <br>
-    {% if is_owner %}
-    <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        Name your photo(*):<br>
-        <input type="text" name="title"><br>
-        Comment:<br>
-        <input type="text" name="comment"><br>
-        Add photo(*):<br>
-        <input type="file" name="img" value="Choose file">
+
+    <head>
+        <script src="/resources/label/markerclusterer.js"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+        <style>
+            #map {
+                height: 500px;
+                width: 500px;
+            }
+        </style>
+
+        <style>
+            #slidecontainer {
+                width: 200%;
+            }
+
+            /* Mouse-over effects */
+            .slider:hover {
+                opacity: 1; /* Fully shown on mouse-over */
+            }
+
+            /* The slider handle (use webkit (Chrome, Opera, Safari, Edge) and moz (Firefox) to override default look) */
+            .slider::-webkit-slider-thumb {
+                -webkit-appearance: none; /* Override default look */
+                appearance: none;
+                width: 25px; /* Set a specific slider handle width */
+                height: 25px; /* Slider handle height */
+                background: #4CAF50; /* Green background */
+                cursor: pointer; /* Cursor on hover */
+            }
+
+            .slider::-moz-range-thumb {
+                width: 25px; /* Set a specific slider handle width */
+                height: 25px; /* Slider handle height */
+                background: #4CAF50; /* Green background */
+                cursor: pointer; /* Cursor on hover */
+            }
+
+        </style>
+
+    </head>
+
+    <body>
+        <h3>My Google Maps Demo</h3>
+        <div id="map"></div>
+
+        <script>
+
+
+        function initMap() {
+
+            var mapOptions = {
+                center: new google.maps.LatLng(0, 0),
+                zoom: 1,
+                minZoom: 1
+            };
+
+            var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            var allowedBounds = new google.maps.LatLngBounds(
+                new google.maps.LatLng(85, -180),	// top left corner of map
+                new google.maps.LatLng(-85, 180)	// bottom right corner
+            );
+
+            var k = 5.0;
+            var n = allowedBounds.getNorthEast().lat() - k;
+            var e = allowedBounds.getNorthEast().lng() - k;
+            var s = allowedBounds.getSouthWest().lat() + k;
+            var w = allowedBounds.getSouthWest().lng() + k;
+            var neNew = new google.maps.LatLng(n, e);
+            var swNew = new google.maps.LatLng(s, w);
+            boundsNew = new google.maps.LatLngBounds(swNew, neNew);
+            map.fitBounds(boundsNew);
+
+            var count = 0;
+            {% for photo in geo_photo %}
+                count += 1;
+            {% endfor %}
+
+            var markers = new Array(count);
+            var marker, i = 0;
+            var id = 'programs';
+
+            {% for photo in geo_photo %}
+
+                var id = 'programs' + i;
+                var lat = parseFloat({{ photo.geo_info.lat }});
+                var lon = parseFloat({{ photo.geo_info.lon }});
+                var gps = {};
+                gps["lat"] = lat;
+                gps["lng"] = lon;
+
+                marker = new google.maps.Marker({
+                  position: gps,
+                  icon: 'http://maps.google.com/mapfiles/marker.png',
+                  id: id,
+                  zIndex:100
+                });
+
+                google.maps.event.addListener(marker, 'mouseover', function(event) {
+                    var icon = {
+                        url: "/image?img_id={{ photo.key.urlsafe() }}",
+                        scaledSize: new google.maps.Size(100, 100)
+                    };
+                    this.setIcon(icon);
+                    this.setLabel('{{ photo.title }}');
+                });
+
+                google.maps.event.addListener(marker, 'mouseout', function(event) {
+                    this.setIcon('http://maps.google.com/mapfiles/marker.png');
+                    this.setLabel('');
+                });
+
+                markers[i] = marker;
+                i += 1;
+            {% endfor %}
+
+            var markerCluster = new MarkerClusterer(map, markers, {imagePath: '/resources/label/images/m'});
+
+        }
+
+        </script>
+
+        <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBva2ik0uBfB1zjXM5nCwHlFD3PZEcTpsg&callback=initMap">
+        </script>
+
+        <div id="slidecontainer">
+            <input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+        </div>
+
+        <script>
+            var slider = document.getElementById("myRange");
+            var output = document.getElementById("demo");
+            output.innerHTML = slider.value; // Display the default slider value
+
+            // Update the current slider value (each time you drag the slider handle)
+            slider.oninput = function() {
+                output.innerHTML = this.value;
+            }
+        </script>
+
+
         <br>
-        * = required
-        <br><br>
-        <input type="submit" name="submit_btn" value="Upload this photo">
-    </form>
-    {% endif %}
-    <br>
-    <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        <input type="submit" name="submit_btn" value="Subscribe this stream">
-    </form>
-    <p class="important">
-        {{greeting}}
-    </p>
+        {% for img_id in img_ids %}
+        <div>
+            <img src="/image?img_id={{ img_id.key.urlsafe() }}">
+            <p>this is image {{ img_id.key }}</p>
+        </div>
+        {% endfor %}
+
+        <br>
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="More photos">
+        </form>
+        <br>
+        {% if is_owner %}
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            Name your photo(*):<br>
+            <input type="text" name="title"><br>
+            Comment:<br>
+            <input type="text" name="comment"><br>
+            Add photo(*):<br>
+            <input type="file" name="img" value="Choose file">
+            <br>
+            * = required
+            <br><br>
+            <input type="submit" name="submit_btn" value="Upload this photo">
+        </form>
+        {% endif %}
+        <br>
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="Subscribe this stream">
+        </form>
+
+    </body>
 {% endblock %}

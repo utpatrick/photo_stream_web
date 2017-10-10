@@ -6,6 +6,7 @@ import urllib
 import model
 import time
 import re
+import json
     
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -23,7 +24,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 # [START mainlogin page]
 DEFAULT_STREAM_NAME = 'new_stream'
-DEFAULT_IMAGE_URL = '/static/default_product.gif'
+DEFAULT_IMAGE_URL = '/resources/default_product.gif'
 
 class MainLoginPage(webapp2.RequestHandler):
 
@@ -152,7 +153,11 @@ class ViewOnePage(webapp2.RequestHandler):
                 self.redirect('/error?photo=invalid')
                 return
         elif status == "Subscribe this stream":
-            model.subscribe_to_stream(stream_name, user.user_id())
+            if user:
+                model.subscribe_to_stream(stream_name, user.user_id())
+            else:
+                self.redirect('/')
+                return
         elif status == "More photos":
             loaded_photo += 3
         # should use ancestor query, will change it later
@@ -165,7 +170,13 @@ class ViewOnePage(webapp2.RequestHandler):
         stream_name = self.request.get('stream')
         loaded_photo = self.request.get('loaded', default_value='3')
 
-        photos = model.get_photo_by_stream(stream_name, user.user_id())
+        photos = model.get_photo_by_stream(stream_name)
+        geo_photo = photos
+
+        # adding fake gps information
+        model.shuffle_stream_geo_info(stream_name)
+        time.sleep(0.1)
+
         photo_ids = sorted(photos, key=lambda x: x.last_update, reverse=True)
 
         loaded_photo = int(loaded_photo)
@@ -174,17 +185,26 @@ class ViewOnePage(webapp2.RequestHandler):
             nums_photo = len(photo_ids)
         else:
             nums_photo = loaded_photo
+
         photo_ids = photo_ids[:nums_photo]
 
-        is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
+        for photo in geo_photo:
+            print(photo.geo_info)
+
+        if user:
+            is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
+        else:
+            is_owner = False
         model.add_view_counts(stream_name)
         template_input = {
             'is_owner': is_owner,
             'greeting': 'this is the view page',
             'img_ids': photo_ids,
             'stream_name': stream_name,
-            'loaded': loaded_photo
+            'loaded': loaded_photo,
+            'geo_photo': geo_photo
         }
+
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_one_page.html')
         self.response.write(template.render(template_values))
@@ -250,9 +270,15 @@ class TrendingPage(webapp2.RequestHandler):
         if num_of_streams >= 3:
             num_of_streams = 3
             sorted_streams = sorted_streams[:3]
-        trending_setting = model.get_trending_setting(user.user_id())
+        if user:
+            trending_setting = model.get_trending_setting(user.user_id())
+            logged_in = True
+        else:
+            trending_setting = "no"
+            logged_in = False
         template_input = {
             'greeting': 'this is the trending page',
+            'logged_in': logged_in,
             'trending_setting': trending_setting,
             'trending_streams': sorted_streams,
             'num_of_streams': num_of_streams
@@ -301,7 +327,6 @@ class ErrorPage(webapp2.RequestHandler):
 class Image(webapp2.RequestHandler):
 
     def get(self):
-        user = users.get_current_user()
         img_id_url_safe = self.request.get('img_id')
         if img_id_url_safe:
             photo = ndb.Key(urlsafe=img_id_url_safe)
