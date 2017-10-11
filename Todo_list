@@ -1,0 +1,17 @@
+1. Integrate FB in a better way (which should works equally as google loging)
+
+2. remove the login requirement for the view all stream page (but redirect the subscribe button in view one stream page to the loging page)
+
+3. move the photo store to either:
+a.) google cloud storage
+b.) blob store
+
+4. Performance optimization (optional from phase 1)
+
+5. Better file uploader
+
+6. Suggestions for search
+
+7. Geo view
+
+8. Web UI upgrade

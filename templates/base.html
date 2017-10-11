@@ -25,7 +25,20 @@
                     <a class="navbar-brand" href="/">Connex.us</a>
                 </div>
             </div>
+            <div class="container">
+            <form action="/search" method="post" class="form-inline" role="form">
+                <div class="form-group">
+                    <input type="text" id="search_str" size=50 value="" name="search_str" class="form-control" placeholder="Type search keywords here">
+                </div>
+                <div class="form-group">
+                <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">&nbsp;<i class="glyphicon glyphicon-search"></i> Search &nbsp;</button>
+                </div>
+            </form>
+        <br>
+    </div>
+    </div>
         </nav>
+
     <!-- Header -->
         <header class="menu-header">
             <div class="container">
@@ -43,11 +56,6 @@
                     <li class="list-inline-item">
                         <a href="/view" class="btn btn-secondary btn-lg">
                             <span class="network-name">View</span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="search" class="btn btn-secondary btn-lg">
-                            <span class="network-name">Search</span>
                         </a>
                     </li>
                     <li class="list-inline-item">
