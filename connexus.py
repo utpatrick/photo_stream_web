@@ -7,11 +7,13 @@ import model
 import time
 import re
 import json
+import datetime
     
 from google.appengine.api import users
 from google.appengine.ext import ndb
 from google.appengine.api import mail
 from google.appengine.api import search
+from dateutil.relativedelta import relativedelta
 
 import jinja2
 import webapp2
@@ -179,17 +181,19 @@ class ViewOnePage(webapp2.RequestHandler):
 
         photo_ids = sorted(photos, key=lambda x: x.last_update, reverse=True)
 
+        latest_photo = photo_ids[0]
+        #latest_photo_date = latest_photo.last_update.date()
+        current_date = datetime.datetime.utcnow().date()
+        a_year_before = current_date + relativedelta(years=-1)
+
         loaded_photo = int(loaded_photo)
 
         if loaded_photo > len(photo_ids):
             nums_photo = len(photo_ids)
         else:
             nums_photo = loaded_photo
-
+            
         photo_ids = photo_ids[:nums_photo]
-
-        for photo in geo_photo:
-            print(photo.geo_info)
 
         if user:
             is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
@@ -202,7 +206,10 @@ class ViewOnePage(webapp2.RequestHandler):
             'img_ids': photo_ids,
             'stream_name': stream_name,
             'loaded': loaded_photo,
-            'geo_photo': geo_photo
+            'geo_photo': geo_photo,
+            'current_date': current_date.strftime("%Y, %m, %d"),
+            'a_year_before': a_year_before.strftime("%Y, %m, %d")
+
         }
 
         template_values = model.merge_two_dicts(template_input, url_dict)
