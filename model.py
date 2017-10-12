@@ -9,6 +9,7 @@ import os
 import webapp2
 import time
 import datetime
+import re
 
 
 class User(ndb.Model):
@@ -282,3 +283,4 @@ def delete_stream(stream_name_list, user_id):
 def get_cover_image_url(stream_name):
     stream = get_stream_by_name(stream_name)
     return stream.cover_image
+

@@ -221,6 +221,8 @@ class SearchPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('templates/search_page.html')
         self.response.write(template.render(template_values))
 
+
+
 # [END search page]
 
 
@@ -331,6 +333,49 @@ class SendDigest24Hr(webapp2.RequestHandler):
     def get(self):
         model.send_digest_24_hr()
 
+class SearchSuggestion(webapp2.RequestHandler):
+    def post(self):
+        search_str = self.getSearchString()
+        resp = self.getSuggestion(search_str)
+        self.response.out.write(resp)
+
+    def getSearchString(self):
+        return self.request.get("search_str")
+
+    def getSuggestion(self, search_str):
+        resp = {}
+        resp['search_str'] = search_str
+        resp['streams'] = self.getSuggestedStreams(search_str)
+        return json.dumps(resp)
+
+    def getSuggestedStreams(self, search_str):
+        search_str = self.getSearchString()
+        query = self.createQuery(search_str)
+        index = search.Index(name="stream_index")
+        try:
+            results = index.search(query)
+            stream_names = []
+            for doc in results:
+                stream_names.append(doc.fields[0].value)
+            return stream_names
+        except search.Error:
+            self.redirect('/error')
+
+    def createQuery(self, search_str):
+        query_string = self.getQueryString(search_str)
+        sort = search.SortExpression(expression='name', direction=search.SortExpression.ASCENDING)
+        sort_opts = search.SortOptions(expressions=[sort])
+        query_options = search.QueryOptions(
+            limit=20,
+            sort_options=sort_opts,
+        )
+        query = search.Query(query_string=query_string, options=query_options)
+        return query
+
+    def getQueryString(self, search_str):
+        query = 'suggestion=' + search_str
+        return query
+
 
 
 # [START app]
@@ -349,5 +394,6 @@ app = webapp2.WSGIApplication([
     ('/digest5min', SendDigest5Min),
     ('/digest1hr', SendDigest1Hr),
     ('/digest24hr', SendDigest24Hr)
+    ('/search_suggestions',SearchSuggestion)
 ], debug=True)
 # [END app]

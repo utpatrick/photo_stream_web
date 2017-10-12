@@ -62,6 +62,9 @@ handlers:
 - url: /digest24hr
   script: connexus.app
 
+- url: /search_suggestions
+  script: connexus.app
+
 # [END handlers]
 
 # [START libraries]
