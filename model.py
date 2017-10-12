@@ -94,7 +94,8 @@ def get_subscribed_stream(id):
 
 def subscribe_to_stream(stream_name, id):
     user = get_user(id)
-    user.subscribes_list.append(stream_name)
+    if stream_name not in user.subscribes_list:
+        user.subscribes_list.append(stream_name)
     user.put()
 
 

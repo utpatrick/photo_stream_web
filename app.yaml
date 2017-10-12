@@ -28,6 +28,9 @@ handlers:
 - url: /view_one
   script: connexus.app
 
+- url: /geo_view
+  script: connexus.app
+
 - url: /search
   script: connexus.app
 

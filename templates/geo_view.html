@@ -1,0 +1,44 @@
+{% extends "templates/base.html" %}
+{% block content %}
+
+    <head>
+        <script src="/static/js/label/markerclusterer.js"></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+        <script src="/static/js/geo_view/date_slider.js"></script>
+        <script src="/static/js/geo_view/init_map.js"></script>
+        <script src="/static/js/geo_view/js_string_parser.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+        <meta id="geo_photo" data-name="{{ geo_photo }}">
+        <meta id="current_date" data-name="{{ current_date }}">
+        <meta id="a_year_before" data-name="{{ a_year_before }}">
+        <link href="/static/css/geo_view.css" rel="stylesheet" type="text/css">
+
+    </head>
+
+    <body>
+        <h3>Photos on Google Maps</h3>
+        <div id="map"></div>
+
+        <script id="reload" async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBva2ik0uBfB1zjXM5nCwHlFD3PZEcTpsg&callback=initMap">
+        </script>
+
+        <br>
+
+        <p>
+            <label for="amount">Date range:</label>
+            <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+        </p>
+
+        <div id="slider-range"></div>
+
+        <br>
+        <form action="/geo_view?stream={{ stream_name }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="Subscribe this stream">
+        </form>
+
+    </body>
+{% endblock %}
