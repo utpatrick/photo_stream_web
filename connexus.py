@@ -26,7 +26,7 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 
 # [START mainlogin page]
 DEFAULT_STREAM_NAME = 'new_stream'
-DEFAULT_IMAGE_URL = '/resources/default_product.gif'
+DEFAULT_IMAGE_URL = '/static/images/default_product.gif'
 
 class MainLoginPage(webapp2.RequestHandler):
 
@@ -176,7 +176,6 @@ class ViewOnePage(webapp2.RequestHandler):
         loaded_photo = self.request.get('loaded', default_value='3')
 
         photos = model.get_photo_by_stream(stream_name)
-        geo_photo = photos
 
         # adding fake gps information
         model.shuffle_stream_geo_info(stream_name)
@@ -207,7 +206,6 @@ class ViewOnePage(webapp2.RequestHandler):
             'img_ids': photo_ids,
             'stream_name': stream_name,
             'loaded': loaded_photo,
-            'geo_photo': geo_photo,
             'current_date': current_date.strftime("%Y, %m, %d"),
             'a_year_before': a_year_before.strftime("%Y, %m, %d")
 
@@ -234,7 +232,7 @@ class GeoViewPage(webapp2.RequestHandler):
                 return
 
         # should use ancestor query, will change it later
-        time.sleep(0.25)
+        time.sleep(0.1)
         self.redirect('/geo_view?stream=' + stream_name)
 
     def get(self):
@@ -257,11 +255,19 @@ class GeoViewPage(webapp2.RequestHandler):
         else:
             is_owner = False
 
+        geo_info = []
+        for photo in geo_photo:
+            temp = {'geo_info': (photo.geo_info.lat, photo.geo_info.lon),
+                    'last_update': photo.last_update.strftime("%Y, %m, %d"),
+                    'key_url': photo.key.urlsafe(),
+                    'key': photo.key.id()}
+            geo_info.append(temp)
+
         model.add_view_counts(stream_name)
         template_input = {
             'is_owner': is_owner,
             'stream_name': stream_name,
-            'geo_photo': geo_photo,
+            'geo_photo': json.dumps(geo_info),
             'current_date': current_date.strftime("%Y, %m, %d"),
             'a_year_before': a_year_before.strftime("%Y, %m, %d")
         }
