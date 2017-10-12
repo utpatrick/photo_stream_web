@@ -1,35 +1,43 @@
 {% extends "templates/base.html" %}
 {% block content %}
-    {% for img_id in img_ids %}
-    <div>
-        <img src="/image?img_id={{ img_id.key.urlsafe() }}">
-        <p>this is image {{ img_id.key }}</p>
-    </div>
-    {% endfor %}
-    <br>
-    <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        <input type="submit" name="submit_btn" value="More photos">
-    </form>
-    <br>
-    {% if is_owner %}
-    <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        Name your photo(*):<br>
-        <input type="text" name="title"><br>
-        Comment:<br>
-        <input type="text" name="comment"><br>
-        Add photo(*):<br>
-        <input type="file" name="img" value="Choose file">
+
+    <body>
+
         <br>
-        * = required
-        <br><br>
-        <input type="submit" name="submit_btn" value="Upload this photo">
-    </form>
-    {% endif %}
-    <br>
-    <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-        <input type="submit" name="submit_btn" value="Subscribe this stream">
-    </form>
-    <p class="important">
-        {{greeting}}
-    </p>
+        {% for img_id in img_ids %}
+        <div>
+            <img src="/image?img_id={{ img_id.key.urlsafe() }}">
+            <p>this is image {{ img_id.key }}</p>
+        </div>
+        {% endfor %}
+        <br>
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="Geo View">
+        </form>
+        <br>
+        <br>
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="More photos">
+        </form>
+        <br>
+        {% if is_owner %}
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            Name your photo(*):<br>
+            <input type="text" name="title"><br>
+            Comment:<br>
+            <input type="text" name="comment"><br>
+            Add photo(*):<br>
+            <input type="file" name="img" value="Choose file">
+            <br>
+            * = required
+            <br><br>
+            <input type="submit" name="submit_btn" value="Upload this photo">
+        </form>
+        {% endif %}
+        <br>
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="Subscribe this stream">
+        </form>
+
+    </body>
 {% endblock %}
