@@ -1,4 +1,18 @@
 {% extends "templates/base.html" %}
+<head>
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>var stream_names = {{stream_names | safe}};</script>
+<script>
+    $(function() {
+    $("#stream_name").autocomplete({
+        source: stream_names,
+        select: function(event,ui) {
+            $('#stream_name').val($("autocomplete").val());
+        });
+    });
+</script>
+</head>
 {% block content %}
     <div class="container">
         {% for s in stream_list %}
@@ -10,5 +24,7 @@
         </div>
         {% endfor %}
     </div>
+
+
 
 {% endblock %}

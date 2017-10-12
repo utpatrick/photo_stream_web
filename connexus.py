@@ -59,9 +59,14 @@ class ManagePage(webapp2.RequestHandler):
         url_dict = model.check_if_login(self, user)
         streams = model.get_stream_list_by_user(user.user_id())
         sub_streams = model.get_subscribed_stream(user.user_id())
+        stream_names =[]
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
+
         template_input = {
             'streams': streams,
             'sub_streams': sub_streams,
+            'stream_names':stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/manage_page.html')
@@ -92,7 +97,8 @@ class CreatePage(webapp2.RequestHandler):
             return
 
         template_value = {
-            'greeting': 'this is the create page'
+            'greeting': 'this is the create page',
+
         }
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
         self.response.write(template.render(template_value))
@@ -102,8 +108,12 @@ class CreatePage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the the create page'
+            'greeting': 'this is the the create page',
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
@@ -123,9 +133,13 @@ class ViewPage(webapp2.RequestHandler):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         streams = model.get_all_stream()
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the view page',
-            'streams': streams
+            'streams': streams,
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_all_page.html')
@@ -178,12 +192,18 @@ class ViewOnePage(webapp2.RequestHandler):
 
         is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
         model.add_view_counts(stream_name)
+
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'is_owner': is_owner,
             'greeting': 'this is the view page',
             'img_ids': photo_ids,
             'stream_name': stream_name,
-            'loaded': loaded_photo
+            'loaded': loaded_photo,
+            'stream_names': stream_names
+
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_one_page.html')
@@ -213,9 +233,15 @@ class SearchPage(webapp2.RequestHandler):
             stream_found = model.search_stream(keyword)
         else:
             stream_found = []
+
+        streams = model.search_stream("")
+        stream_names =[]
+        for stream in streams :
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the search page',
-            'stream_list': stream_found
+            'stream_list': stream_found,
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/search_page.html')
@@ -253,11 +279,18 @@ class TrendingPage(webapp2.RequestHandler):
             num_of_streams = 3
             sorted_streams = sorted_streams[:3]
         trending_setting = model.get_trending_setting(user.user_id())
+
+        streams = model.search_stream("")
+        stream_names = []
+        for stream in streams:
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the trending page',
             'trending_setting': trending_setting,
             'trending_streams': sorted_streams,
-            'num_of_streams': num_of_streams
+            'num_of_streams': num_of_streams,
+            'stream_names': stream_names
+
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/trending_page.html')
@@ -271,8 +304,14 @@ class SocialPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+
+        streams = model.search_stream("")
+        stream_names = []
+        for stream in streams:
+            stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the social page'
+            'greeting': 'this is the social page',
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/social_page.html')
@@ -288,9 +327,14 @@ class ErrorPage(webapp2.RequestHandler):
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
         photo = self.request.get('photo')
+
+        stream_names = []
+        for stream in streams:
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the error page',
-            'error_message': 'stream name: '+ stream_name + ' is already occupied!'
+            'error_message': 'stream name: '+ stream_name + ' is already occupied!',
+            'stream_names': stream_names
         }
         if photo:
             template_input['error_message'] = 'photo ' + photo
@@ -333,49 +377,6 @@ class SendDigest24Hr(webapp2.RequestHandler):
     def get(self):
         model.send_digest_24_hr()
 
-class SearchSuggestion(webapp2.RequestHandler):
-    def post(self):
-        search_str = self.getSearchString()
-        resp = self.getSuggestion(search_str)
-        self.response.out.write(resp)
-
-    def getSearchString(self):
-        return self.request.get("search_str")
-
-    def getSuggestion(self, search_str):
-        resp = {}
-        resp['search_str'] = search_str
-        resp['streams'] = self.getSuggestedStreams(search_str)
-        return json.dumps(resp)
-
-    def getSuggestedStreams(self, search_str):
-        search_str = self.getSearchString()
-        query = self.createQuery(search_str)
-        index = search.Index(name="stream_index")
-        try:
-            results = index.search(query)
-            stream_names = []
-            for doc in results:
-                stream_names.append(doc.fields[0].value)
-            return stream_names
-        except search.Error:
-            self.redirect('/error')
-
-    def createQuery(self, search_str):
-        query_string = self.getQueryString(search_str)
-        sort = search.SortExpression(expression='name', direction=search.SortExpression.ASCENDING)
-        sort_opts = search.SortOptions(expressions=[sort])
-        query_options = search.QueryOptions(
-            limit=20,
-            sort_options=sort_opts,
-        )
-        query = search.Query(query_string=query_string, options=query_options)
-        return query
-
-    def getQueryString(self, search_str):
-        query = 'suggestion=' + search_str
-        return query
-
 
 
 # [START app]
@@ -394,6 +395,5 @@ app = webapp2.WSGIApplication([
     ('/digest5min', SendDigest5Min),
     ('/digest1hr', SendDigest1Hr),
     ('/digest24hr', SendDigest24Hr)
-    ('/search_suggestions',SearchSuggestion)
 ], debug=True)
 # [END app]

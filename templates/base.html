@@ -12,8 +12,22 @@
 
         <link href="/static/css/base.css" rel="stylesheet">
 
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
-        <script type='text/javascript' src='js/autocomplete.js'></script>
+        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+        <script>var stream_names = {{stream_names | safe}};</script>
+        <script>
+        $(function() {
+        $("#search_str").autocomplete({
+            source: stream_names,
+            select: function(event,ui) {
+                $('#search_str').val($("autocomplete").val());
+                }
+            });
+        });
+        </script>
+        <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
     </head>
 
@@ -29,7 +43,7 @@
             <div class="container">
             <form action="/search" method="post" class="form-inline" role="form">
                 <div class="form-group">
-                    <input type="text" id="search_str" size=50 value="" name="search_str" class="form-control" placeholder="Type search keywords here">
+                    <input type="text" id="search_str"size="25%" value="" name="search_str" class="form-control" placeholder="Type search keywords here">
                 </div>
                 <div class="form-group">
                 <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">&nbsp;<i class="glyphicon glyphicon-search"></i> Search &nbsp;</button>
