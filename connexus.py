@@ -162,6 +162,9 @@ class ViewOnePage(webapp2.RequestHandler):
                 return
         elif status == "More photos":
             loaded_photo += 3
+        elif status == "Geo View":
+            self.redirect('/geo_view?stream=' + stream_name)
+            return
         # should use ancestor query, will change it later
         time.sleep(0.25)
         self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
@@ -181,8 +184,6 @@ class ViewOnePage(webapp2.RequestHandler):
 
         photo_ids = sorted(photos, key=lambda x: x.last_update, reverse=True)
 
-        latest_photo = photo_ids[0]
-        #latest_photo_date = latest_photo.last_update.date()
         current_date = datetime.datetime.utcnow().date()
         a_year_before = current_date + relativedelta(years=-1)
 
@@ -214,6 +215,58 @@ class ViewOnePage(webapp2.RequestHandler):
 
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_one_page.html')
+        self.response.write(template.render(template_values))
+# [END view one page]
+
+
+# [START geo view page]
+class GeoViewPage(webapp2.RequestHandler):
+    def post(self):
+        user = users.get_current_user()
+        stream_name = self.request.get('stream')
+        status = self.request.get('submit_btn')
+
+        if status == "Subscribe this stream":
+            if user:
+                model.subscribe_to_stream(stream_name, user.user_id())
+            else:
+                self.redirect('/')
+                return
+
+        # should use ancestor query, will change it later
+        time.sleep(0.25)
+        self.redirect('/geo_view?stream=' + stream_name)
+
+    def get(self):
+        user = users.get_current_user()
+        url_dict = model.check_if_login(self, user)
+        stream_name = self.request.get('stream')
+
+        photos = model.get_photo_by_stream(stream_name)
+        geo_photo = photos
+
+        # adding fake gps information
+        model.shuffle_stream_geo_info(stream_name)
+        time.sleep(0.1)
+
+        current_date = datetime.datetime.utcnow().date()
+        a_year_before = current_date + relativedelta(years=-1)
+
+        if user:
+            is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
+        else:
+            is_owner = False
+
+        model.add_view_counts(stream_name)
+        template_input = {
+            'is_owner': is_owner,
+            'stream_name': stream_name,
+            'geo_photo': geo_photo,
+            'current_date': current_date.strftime("%Y, %m, %d"),
+            'a_year_before': a_year_before.strftime("%Y, %m, %d")
+        }
+        template_values = model.merge_two_dicts(template_input, url_dict)
+        template = JINJA_ENVIRONMENT.get_template('templates/geo_view.html')
         self.response.write(template.render(template_values))
 # [END view one page]
 
@@ -372,6 +425,7 @@ app = webapp2.WSGIApplication([
     ('/create', CreatePage),
     ('/view', ViewPage),
     ('/view_one', ViewOnePage),
+    ('/geo_view', GeoViewPage),
     ('/search', SearchPage),
     ('/trending', TrendingPage),
     ('/social', SocialPage),

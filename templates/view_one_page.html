@@ -1,158 +1,10 @@
 {% extends "templates/base.html" %}
 {% block content %}
 
-    <head>
-        <script src="/resources/label/markerclusterer.js"></script>
-        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 
-
-        <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
-        <style>
-            #map {
-                height: 500px;
-                width: 500px;
-            }
-        </style>
-
-        <style>
-            #slider-range {
-                height: 10px;
-                width: 500px;
-            }
-        </style>
-
-        <script>
-            $( function() {
-
-                var min = new Date("{{ a_year_before }}").getTime() / 1000;
-                var max = new Date("{{ current_date }}").getTime() / 1000;
-
-                $( "#slider-range" ).slider({
-                    range: true,
-                    min: min,
-                    max: max,
-                    step: 86400,
-                    values: [min, max],
-                    slide: function( event, ui ) {
-                        $( "#amount" ).val( (new Date(ui.values[ 0 ] *1000).toLocaleDateString() )
-                        + " - "
-                        + (new Date(ui.values[ 1 ] *1000)).toLocaleDateString() );
-                    },
-                    change: function( event, ui ) {
-                        initMap();
-                    }
-                });
-
-                $( "#amount" ).val( (new Date($( "#slider-range" ).slider( "values", 0 )*1000).toLocaleDateString()) +
-                    " - " + (new Date($( "#slider-range" ).slider( "values", 1 )*1000)).toLocaleDateString());
-            });
-        </script>
-
-    </head>
 
     <body>
-        <h3>My Google Maps Demo</h3>
-        <div id="map"></div>
 
-        <script>
-
-        function initMap() {
-
-            var mapOptions = {
-                center: new google.maps.LatLng(0, 0),
-                zoom: 1,
-                minZoom: 1
-            };
-
-            var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-
-            var allowedBounds = new google.maps.LatLngBounds(
-                new google.maps.LatLng(85, -180),	// top left corner of map
-                new google.maps.LatLng(-85, 180)	// bottom right corner
-            );
-
-            var k = 5.0;
-            var n = allowedBounds.getNorthEast().lat() - k;
-            var e = allowedBounds.getNorthEast().lng() - k;
-            var s = allowedBounds.getSouthWest().lat() + k;
-            var w = allowedBounds.getSouthWest().lng() + k;
-            var neNew = new google.maps.LatLng(n, e);
-            var swNew = new google.maps.LatLng(s, w);
-            boundsNew = new google.maps.LatLngBounds(swNew, neNew);
-            map.fitBounds(boundsNew);
-
-            var count = 0;
-            {% for photo in geo_photo %}
-                count += 1;
-            {% endfor %}
-
-            var markers = new Array(count);
-            var marker, i = 0;
-            var id = 'programs';
-
-            {% for photo in geo_photo %}
-
-
-                var this_photo_date = new Date("{{ photo.last_update.date().strftime("%Y, %m, %d") }}");
-                var lower_bar = new Date($( "#slider-range" ).slider( "values", 0 )*1000);
-                var upper_bar = new Date($( "#slider-range" ).slider( "values", 1 )*1000);
-
-                if(this_photo_date >= lower_bar && this_photo_date <= upper_bar){
-                    var id = 'programs' + i;
-                    var lat = parseFloat({{ photo.geo_info.lat }});
-                    var lon = parseFloat({{ photo.geo_info.lon }});
-                    var gps = {};
-                    gps["lat"] = lat;
-                    gps["lng"] = lon;
-
-                    marker = new google.maps.Marker({
-                      position: gps,
-                      icon: 'http://maps.google.com/mapfiles/marker.png',
-                      id: id,
-                      zIndex:100
-                    });
-
-                    google.maps.event.addListener(marker, 'mouseover', function(event) {
-                        var icon = {
-                            url: "/image?img_id={{ photo.key.urlsafe() }}",
-                            scaledSize: new google.maps.Size(100, 100)
-                        };
-                        this.setIcon(icon);
-                        this.setLabel('{{ photo.title }}');
-                    });
-
-                    google.maps.event.addListener(marker, 'mouseout', function(event) {
-                        this.setIcon('http://maps.google.com/mapfiles/marker.png');
-                        this.setLabel('');
-                    });
-
-                    markers[i] = marker;
-                    i += 1;
-                }
-            {% endfor %}
-
-            var markerCluster = new MarkerClusterer(map, markers, {imagePath: '/resources/label/images/m'});
-
-        }
-
-        </script>
-
-        <script id="reload" async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBva2ik0uBfB1zjXM5nCwHlFD3PZEcTpsg&callback=initMap">
-        </script>
-
-        <br>
-
-        <p>
-            <label for="amount">Date range:</label>
-            <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
-        </p>
-
-        <div id="slider-range"></div>
-
-        <br>
         <br>
         {% for img_id in img_ids %}
         <div>
@@ -160,7 +12,11 @@
             <p>this is image {{ img_id.key }}</p>
         </div>
         {% endfor %}
-
+        <br>
+        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
+            <input type="submit" name="submit_btn" value="Geo View">
+        </form>
+        <br>
         <br>
         <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
             <input type="submit" name="submit_btn" value="More photos">
