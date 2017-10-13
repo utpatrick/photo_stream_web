@@ -1,13 +1,15 @@
 {% extends "templates/base.html" %}
 {% block content %}
     <script src="/static/js/dropzone.js"></script>
-    <script src="/static/js/lightbox-plus-jquery.min.js"></script>
     <script src="/static/js/view_one_page.js"></script>
     <link href="/static/css/lightbox.min.css" rel="stylesheet" type="text/css">
     <link href="/static/css/dropzone.css" rel="stylesheet" type="text/css">
     <link href="/static/css/view_one_page.css" rel="stylesheet" type="text/css">
+
     <meta id="stream_name" data-name="{{ stream_name }}">
     <meta id="loaded_image" data-name="{{ loaded }}">
+    <meta id="upload_url" data-name="{{ upload_url }}">
+
 
     <body>
     <h3 class="text-center">{{ stream_name }} photo stream</h3>
@@ -24,17 +26,18 @@
         {% endif %}
     {% else %}
         {% set count = 1 %}
+
         <div class="img-container">
             <div class="img-containerElem">
                 {% for img_id in img_ids %}
                     {% if count <= 4 %}
-                                <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
+                                <a href="/image?img_id={{ img_id }}" class="pop" data-lightbox="set">
                                     <input id="photo_id" name="photo_id" type="image"
                                            class="example-image-link"
-                                           src="/image?img_id={{ img_id.key.urlsafe() }}">
+                                           src="/image?img_id={{ img_id }}">
                                 </a>
                     {% else %}
-                                <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set"></a>
+                                <a href="/image?img_id={{ img_id }}" class="pop" data-lightbox="set"></a>
                     {% endif %}
                     {% set count = count + 1 %}
                 {% endfor %}
@@ -50,6 +53,7 @@
         <form action="/view_one?stream={{ stream_name }}&action=geoview" method="post">
             <button class="btn btn-success btn-lg" type="submit" id="geoview_btn">Geo View</button>
         </form>
+
     </div>
 
     <div>

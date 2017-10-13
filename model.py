@@ -38,9 +38,9 @@ class Stream(ndb.Model):
 class Photo(ndb.Model):
     up_stream = ndb.KeyProperty(kind=Stream)
     title = ndb.StringProperty()
-    comment = ndb.StringProperty()
     last_update = ndb.DateTimeProperty(auto_now_add=True)
-    content = ndb.BlobProperty()
+    # content = ndb.BlobProperty()
+    blob_key = ndb.BlobKeyProperty()
     geo_info = ndb.GeoPtProperty()
 
 
@@ -230,16 +230,16 @@ def create_stream(stream_name, cover_image_url, tag, id):
         return 0
 
 
-def add_photo(user_id, stream_name, title, comment, content):
+def add_photo(user_id, stream_name, title, key):
     user = get_user(user_id)
-    any_empty = (title == '' or content == '')
-    if any_empty:
+
+    if not title or not key or not stream_name:
         return 1
     else:
         stream = get_stream_by_name(stream_name)
         stream.photo_counts += 1
         user.photo_counts += 1
-        new_photo = Photo(up_stream=stream.key, title=title, comment=comment, content=content)
+        new_photo = Photo(up_stream=stream.key, title=title, blob_key=key)
         new_photo.put()
         stream.put()
         user.put()
