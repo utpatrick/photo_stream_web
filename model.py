@@ -228,8 +228,8 @@ def create_stream(stream_name, cover_image_url, tag, id):
         return 0
 
 
-def add_photo(id, stream_name, title, comment, content):
-    user = get_user(id)
+def add_photo(user_id, stream_name, title, comment, content):
+    user = get_user(user_id)
     any_empty = (title == '' or content == '')
     if any_empty:
         return 1
