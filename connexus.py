@@ -62,9 +62,14 @@ class ManagePage(webapp2.RequestHandler):
         url_dict = model.check_if_login(self, user)
         streams = model.get_stream_list_by_user(user.user_id())
         sub_streams = model.get_subscribed_stream(user.user_id())
+        stream_names =[]
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
+
         template_input = {
             'streams': streams,
             'sub_streams': sub_streams,
+            'stream_names':stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/manage_page.html')
@@ -95,7 +100,8 @@ class CreatePage(webapp2.RequestHandler):
             return
 
         template_value = {
-            'greeting': 'this is the create page'
+            'greeting': 'this is the create page',
+
         }
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
         self.response.write(template.render(template_value))
@@ -105,8 +111,12 @@ class CreatePage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the the create page'
+            'greeting': 'this is the the create page',
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
@@ -126,9 +136,13 @@ class ViewPage(webapp2.RequestHandler):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         streams = model.get_all_stream()
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the view page',
-            'streams': streams
+            'streams': streams,
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/view_all_page.html')
@@ -143,24 +157,22 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
         comment = self.request.get('comment')
-        title = self.request.get('title', '')
-        content = self.request.get('img', '')
-        status = self.request.get('submit_btn')
+        action = self.request.get('action', '')
         loaded_photo = self.request.get('loaded', default_value='3')
         loaded_photo = int(loaded_photo)
 
-        if status == "Upload this photo":
-            result = model.add_photo(user.user_id(), stream_name, title, comment, content)
-            if result:
-                self.redirect('/error?photo=invalid')
-                return
-        elif status == "Subscribe this stream":
-            if user:
-                model.subscribe_to_stream(stream_name, user.user_id())
-            else:
-                self.redirect('/')
-                return
-        elif status == "More photos":
+        if action == 'upload':
+            counts = self.request.get('counts')
+            for i in range(int(counts)):
+                title = self.request.get('title[' + str(i) + ']')
+                content = self.request.get('image[' + str(i) + ']')
+                result = model.add_photo(user.user_id(), stream_name, title, comment, content)
+                if result:
+                    self.redirect('/error?photo=invalid')
+                    return
+        elif action == 'subscribe':
+            model.subscribe_to_stream(stream_name, user.user_id())
+        elif action == 'more':
             loaded_photo += 3
         elif status == "Geo View":
             self.redirect('/geo_view?stream=' + stream_name)
@@ -188,7 +200,9 @@ class ViewOnePage(webapp2.RequestHandler):
 
         loaded_photo = int(loaded_photo)
 
-        if loaded_photo > len(photo_ids):
+        loaded_photo = int(loaded_photo)
+        more = loaded_photo < len(photo_ids)
+        if not more:
             nums_photo = len(photo_ids)
         else:
             nums_photo = loaded_photo
@@ -200,14 +214,20 @@ class ViewOnePage(webapp2.RequestHandler):
         else:
             is_owner = False
         model.add_view_counts(stream_name)
+
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'is_owner': is_owner,
-            'greeting': 'this is the view page',
             'img_ids': photo_ids,
+            'more': more,
             'stream_name': stream_name,
             'loaded': loaded_photo,
+            'stream_names': stream_names,
             'current_date': current_date.strftime("%Y, %m, %d"),
             'a_year_before': a_year_before.strftime("%Y, %m, %d")
+
 
         }
 
@@ -299,13 +319,21 @@ class SearchPage(webapp2.RequestHandler):
             stream_found = model.search_stream(keyword)
         else:
             stream_found = []
+
+        streams = model.search_stream("")
+        stream_names =[]
+        for stream in streams :
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the search page',
-            'stream_list': stream_found
+            'stream_list': stream_found,
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/search_page.html')
         self.response.write(template.render(template_values))
+
+
 
 # [END search page]
 
@@ -336,18 +364,28 @@ class TrendingPage(webapp2.RequestHandler):
         if num_of_streams >= 3:
             num_of_streams = 3
             sorted_streams = sorted_streams[:3]
+
+
+        streams = model.search_stream("")
+        stream_names = []
+        for stream in streams:
+            stream_names.append(str(stream.stream_name))
+
         if user:
             trending_setting = model.get_trending_setting(user.user_id())
             logged_in = True
         else:
             trending_setting = "no"
             logged_in = False
+
         template_input = {
             'greeting': 'this is the trending page',
             'logged_in': logged_in,
             'trending_setting': trending_setting,
             'trending_streams': sorted_streams,
-            'num_of_streams': num_of_streams
+            'num_of_streams': num_of_streams,
+            'stream_names': stream_names
+
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/trending_page.html')
@@ -361,8 +399,14 @@ class SocialPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+
+        streams = model.search_stream("")
+        stream_names = []
+        for stream in streams:
+            stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the social page'
+            'greeting': 'this is the social page',
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/social_page.html')
@@ -378,9 +422,14 @@ class ErrorPage(webapp2.RequestHandler):
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
         photo = self.request.get('photo')
+
+        stream_names = []
+        for stream in streams:
+            stream_names.append(str(stream.stream_name))
         template_input = {
             'greeting': 'this is the error page',
-            'error_message': 'stream name: '+ stream_name + ' is already occupied!'
+            'error_message': 'stream name: '+ stream_name + ' is already occupied!',
+            'stream_names': stream_names
         }
         if photo:
             template_input['error_message'] = 'photo ' + photo

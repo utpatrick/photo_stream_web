@@ -10,7 +10,9 @@ import os
 import webapp2
 import time
 import datetime
+import re
 import json
+
 
 
 class User(ndb.Model):
@@ -228,8 +230,8 @@ def create_stream(stream_name, cover_image_url, tag, id):
         return 0
 
 
-def add_photo(id, stream_name, title, comment, content):
-    user = get_user(id)
+def add_photo(user_id, stream_name, title, comment, content):
+    user = get_user(user_id)
     any_empty = (title == '' or content == '')
     if any_empty:
         return 1
@@ -287,10 +289,10 @@ def get_cover_image_url(stream_name):
     stream = get_stream_by_name(stream_name)
     return stream.cover_image
 
-
 def shuffle_stream_geo_info(stream_name):
     fake_gps = Faker()
     photos = get_photo_by_stream(stream_name)
     for photo in photos:
         photo.geo_info = ndb.GeoPt(fake_gps.latitude(), fake_gps.longitude())
         photo.put()
+
