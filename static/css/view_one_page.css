@@ -9,9 +9,18 @@
 }
 
 .img-container {
-    height: 300px;
-    weidth: 300px;
+    width: 200px;
+    height: auto;
     overflow: hidden;
     padding: 10px;
     margin: 10px;
+    float: left;
+    position:relative
+}
+
+.img-containerNewLine {
+    clear: both;
+    float: left;
+    display: block;
+    position: relative;
 }

@@ -174,7 +174,7 @@ class ViewOnePage(webapp2.RequestHandler):
             model.subscribe_to_stream(stream_name, user.user_id())
         elif action == 'more':
             loaded_photo += 3
-        elif action == "Geo View":
+        elif action == "geoview":
             self.redirect('/geo_view?stream=' + stream_name)
             return
         # should use ancestor query, will change it later
@@ -242,9 +242,9 @@ class GeoViewPage(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
-        status = self.request.get('submit_btn')
+        action = self.request.get('action', '')
 
-        if status == "Subscribe this stream":
+        if action == "subscribe":
             if user:
                 model.subscribe_to_stream(stream_name, user.user_id())
             else:
