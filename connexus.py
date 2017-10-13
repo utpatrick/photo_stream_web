@@ -157,24 +157,22 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
         comment = self.request.get('comment')
-        title = self.request.get('title', '')
-        content = self.request.get('img', '')
-        status = self.request.get('submit_btn')
+        action = self.request.get('action', '')
         loaded_photo = self.request.get('loaded', default_value='3')
         loaded_photo = int(loaded_photo)
 
-        if status == "Upload this photo":
-            result = model.add_photo(user.user_id(), stream_name, title, comment, content)
-            if result:
-                self.redirect('/error?photo=invalid')
-                return
-        elif status == "Subscribe this stream":
-            if user:
-                model.subscribe_to_stream(stream_name, user.user_id())
-            else:
-                self.redirect('/')
-                return
-        elif status == "More photos":
+        if action == 'upload':
+            counts = self.request.get('counts')
+            for i in range(int(counts)):
+                title = self.request.get('title[' + str(i) + ']')
+                content = self.request.get('image[' + str(i) + ']')
+                result = model.add_photo(user.user_id(), stream_name, title, comment, content)
+                if result:
+                    self.redirect('/error?photo=invalid')
+                    return
+        elif action == 'subscribe':
+            model.subscribe_to_stream(stream_name, user.user_id())
+        elif action == 'more':
             loaded_photo += 3
         elif status == "Geo View":
             self.redirect('/geo_view?stream=' + stream_name)
@@ -202,7 +200,9 @@ class ViewOnePage(webapp2.RequestHandler):
 
         loaded_photo = int(loaded_photo)
 
-        if loaded_photo > len(photo_ids):
+        loaded_photo = int(loaded_photo)
+        more = loaded_photo < len(photo_ids)
+        if not more:
             nums_photo = len(photo_ids)
         else:
             nums_photo = loaded_photo
@@ -220,8 +220,8 @@ class ViewOnePage(webapp2.RequestHandler):
             stream_names.append(str(stream.stream_name))
         template_input = {
             'is_owner': is_owner,
-            'greeting': 'this is the view page',
             'img_ids': photo_ids,
+            'more': more,
             'stream_name': stream_name,
             'loaded': loaded_photo,
             'stream_names': stream_names,

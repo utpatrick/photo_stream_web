@@ -1,43 +1,48 @@
 {% extends "templates/base.html" %}
 {% block content %}
-
-    <body>
-
+    <script src="/static/js/dropzone.js"></script>
+    <script src="/static/js/lightbox-plus-jquery.min.js"></script>
+    <script src="/static/js/view_one_page.js"></script>
+    <link href="/static/css/lightbox.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/dropzone.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/view_one_page.css" rel="stylesheet" type="text/css">
+    <meta id="stream_name" data-name="{{ stream_name }}">
+    <meta id="loaded_image" data-name="{{ loaded }}">
+    <h3 class="text-center">{{ stream_name }} photo stream</h3>
+    <br>
+    {% if img_ids|length <1 %}
+        <h4 class="text-center">You don't have any photos yet, upload some!</h4>
         <br>
-        {% for img_id in img_ids %}
-        <div>
-            <img src="/image?img_id={{ img_id.key.urlsafe() }}">
-            <p>this is image {{ img_id.key }}</p>
+    {% else %}
+         <div class="row">
+            {% for img_id in img_ids %}
+                <div class="col-3 img-container">
+                    <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
+                        <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}">
+                    </a>
+                    <p>{{ img_id.title }}</p>
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-        <br>
-        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-            <input type="submit" name="submit_btn" value="Geo View">
-        </form>
-        <br>
-        <br>
-        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-            <input type="submit" name="submit_btn" value="More photos">
-        </form>
-        <br>
-        {% if is_owner %}
-        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-            Name your photo(*):<br>
-            <input type="text" name="title"><br>
-            Comment:<br>
-            <input type="text" name="comment"><br>
-            Add photo(*):<br>
-            <input type="file" name="img" value="Choose file">
-            <br>
-            * = required
-            <br><br>
-            <input type="submit" name="submit_btn" value="Upload this photo">
-        </form>
+        {% if more %}
         {% endif %}
-        <br>
-        <form action="/view_one?stream={{ stream_name }}&loaded= {{ loaded }}" method="post" enctype="multipart/form-data">
-            <input type="submit" name="submit_btn" value="Subscribe this stream">
-        </form>
+    {% endif %}
 
-    </body>
+    {% if is_owner %}
+    <form class="form-group" method="post" enctype="multipart/form-data">
+        <div id="uploader" class="dropzone">
+            <div class="dz-message">Drop your awesome photos here! (or click)</div>
+        </div>
+        <br>
+        <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
+        <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Submit</button>
+        <div>* = required</div>
+    </form>
+    {% else %}
+    <br>
+    <form action="/view_one?stream={{ stream_name }}&action=substribe" method="post">
+        <input type="submit" name="submit_btn">
+    </form>
+    {% endif %}
 {% endblock %}
+
