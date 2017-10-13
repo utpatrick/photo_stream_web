@@ -12,10 +12,13 @@
         <tbody>
             <tr class="hide_all">
             {% for s in streams %}
-                <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-                    <img class="img-responsive" src="{{ s.cover_image }}" value="{{ s.stream_name }}" alt="" height = 200 width = 300>
-                    <h4 align="center">{{ s.stream_name }}</h4>
-                </div>
+                <form action="" method="post">
+                    <div class="col-lg-3 col-md-4 col-xs-6 thumb">
+                        <input name="stream_id" align="center" class="" type="image" value="{{ s.stream_name }}" src="{{ s.cover_image }}" height = 200 width = 200>
+                        <br>
+                        <br>
+                    </div>
+                </form>
             {% endfor %}
             </tr>
         </tbody>
