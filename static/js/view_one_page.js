@@ -11,16 +11,20 @@ Dropzone.options.uploader = {
     init: function () {
         var dzClosure = this;
         $("#submit_btn").click(function (event) {
-            var stream_name = $("#stream_name").attr("data-name");
-            this.url = "/view_one?stream=" + stream_name;
             event.preventDefault();
             event.stopPropagation();
             dzClosure.processQueue();
         });
 
+        this.on("processing", function (file) {
+            this.options.url = $("#upload_url").attr("data-name");
+        });
+
         this.on("sending", function(data, xhr, formData) {
-            formData.append("action", "upload");
-            formData.append("loaded", $("#loaded_image").attr("data-name"));
+            formData.append("stream", $("#stream_name").attr("data-name"));
+            if($("#loaded_image").attr("data-name")) {
+                formData.append("loaded", $("#loaded_image").attr("data-name"));
+            }
             formData.append("counts", this.files.length);
             for (var i = 0; i < this.files.length; i++) {
                 formData.append("title[" + i + "]", this.files[i].name);

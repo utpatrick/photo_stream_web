@@ -45,9 +45,6 @@ handlers:
   script: connexus.app
   login: required
 
-- url: /image
-  script: connexus.app
-
 - url: /updatetrending
   script: connexus.app
 
@@ -58,6 +55,15 @@ handlers:
   script: connexus.app
 
 - url: /digest24hr
+  script: connexus.app
+
+- url: /upload_image
+  script: connexus.app
+
+- url: /view_image
+  script: connexus.app
+
+- url: .*
   script: connexus.app
 
 # Path variables

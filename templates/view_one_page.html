@@ -1,13 +1,15 @@
 {% extends "templates/base.html" %}
 {% block content %}
     <script src="/static/js/dropzone.js"></script>
-    <script src="/static/js/lightbox-plus-jquery.min.js"></script>
     <script src="/static/js/view_one_page.js"></script>
     <link href="/static/css/lightbox.min.css" rel="stylesheet" type="text/css">
     <link href="/static/css/dropzone.css" rel="stylesheet" type="text/css">
     <link href="/static/css/view_one_page.css" rel="stylesheet" type="text/css">
+
     <meta id="stream_name" data-name="{{ stream_name }}">
     <meta id="loaded_image" data-name="{{ loaded }}">
+    <meta id="upload_url" data-name="{{ upload_url }}">
+
 
     <body>
     <h3 class="text-center">{{ stream_name }} photo stream</h3>
@@ -28,8 +30,8 @@
             {% if count <= 3 %}
                 <div class="col-md-4 col-xs-6 thumb">
                     <div class="image-set">
-                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
-                            <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}" height = 200 width = 200>
+                        <a href="/view_image?img_id={{ img_id }}" class="pop" data-lightbox="set">
+                            <img class="img_display img-thumbnail" src="/view_image?img_id={{ img_id }}" height = 200 width = 200>
                         </a>
                         <p>{{ img_id.title }}</p>
                     </div>
@@ -37,7 +39,7 @@
             {% else %}
                 <div class="img-container">
                     <div class="image-set">
-                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set"></a>
+                        <a href="/view_image?img_id={{ img_id }}" class="pop" data-lightbox="set"></a>
                     </div>
                 </div>
             {% endif %}
