@@ -4,6 +4,7 @@
     <style type="text/css">
         tr.hide_all > td, td.hide_all{
         border-style:hidden;
+        overflow：scroll;
         }
     </style>
 
@@ -11,11 +12,10 @@
         <tbody>
             <tr class="hide_all">
             {% for s in streams %}
-                <td>
-                    <form action="" method="post">
-                        <input name="stream_id" class="" type="image" value="{{ s.stream_name }}" src="{{ s.cover_image }}">
-                    </form>
-                </td>
+                <div class="col-lg-3 col-md-4 col-xs-6 thumb">
+                    <img class="img-responsive" src="{{ s.cover_image }}" value="{{ s.stream_name }}" alt="" height = 200 width = 300>
+                    <h4 align="center">{{ s.stream_name }}</h4>
+                </div>
             {% endfor %}
             </tr>
         </tbody>
