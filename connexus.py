@@ -158,7 +158,7 @@ class ViewOnePage(webapp2.RequestHandler):
         stream_name = self.request.get('stream')
         comment = self.request.get('comment')
         action = self.request.get('action', '')
-        loaded_photo = self.request.get('loaded', default_value='3')
+        loaded_photo = self.request.get('loaded', default_value='9')
         loaded_photo = int(loaded_photo)
 
         if action == 'upload':
@@ -174,7 +174,7 @@ class ViewOnePage(webapp2.RequestHandler):
             model.subscribe_to_stream(stream_name, user.user_id())
         elif action == 'more':
             loaded_photo += 3
-        elif action == "Geo View":
+        elif action == "geoview":
             self.redirect('/geo_view?stream=' + stream_name)
             return
         # should use ancestor query, will change it later
@@ -185,7 +185,7 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
-        loaded_photo = self.request.get('loaded', default_value='3')
+        loaded_photo = self.request.get('loaded', default_value='9')
 
         photos = model.get_photo_by_stream(stream_name)
 
@@ -242,9 +242,9 @@ class GeoViewPage(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
-        status = self.request.get('submit_btn')
+        action = self.request.get('action', '')
 
-        if status == "Subscribe this stream":
+        if action == "subscribe":
             if user:
                 model.subscribe_to_stream(stream_name, user.user_id())
             else:
@@ -282,8 +282,6 @@ class GeoViewPage(webapp2.RequestHandler):
                     'key_url': photo.key.urlsafe(),
                     'key': photo.key.id()}
             geo_info.append(temp)
-
-        print(geo_info)
 
         model.add_view_counts(stream_name)
         template_input = {

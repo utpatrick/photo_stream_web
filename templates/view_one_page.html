@@ -8,41 +8,74 @@
     <link href="/static/css/view_one_page.css" rel="stylesheet" type="text/css">
     <meta id="stream_name" data-name="{{ stream_name }}">
     <meta id="loaded_image" data-name="{{ loaded }}">
+
+    <body>
     <h3 class="text-center">{{ stream_name }} photo stream</h3>
     <br>
+
+    <div>
     {% if img_ids|length <1 %}
-        <h4 class="text-center">You don't have any photos yet, upload some!</h4>
-        <br>
+        {% if is_owner %}
+            <h4 class="text-center">You don't have any photo yet, upload some!</h4>
+            <br>
+        {% else %}
+            <h4 class="text-center">This stream has no photo yet, come back later!</h4>
+            <br>
+        {% endif %}
     {% else %}
-         <div class="row">
-            {% for img_id in img_ids %}
-                <div class="col-3 img-container">
-                    <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
-                        <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}">
-                    </a>
-                    <p>{{ img_id.title }}</p>
+        {% set count = 1 %}
+        {% for img_id in img_ids %}
+            {% if count <= 3 %}
+                <div class="col-md-4 col-xs-6 thumb">
+                    <div class="image-set">
+                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
+                            <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}" height = 200 width = 200>
+                        </a>
+                        <p>{{ img_id.title }}</p>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
+            {% else %}
+                <div class="img-container">
+                    <div class="image-set">
+                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set"></a>
+                    </div>
+                </div>
+            {% endif %}
+            {% set count = count + 1 %}
+        {% endfor %}
+
         {% if more %}
         {% endif %}
     {% endif %}
-
-    {% if is_owner %}
-    <form class="form-group" method="post" enctype="multipart/form-data">
-        <div id="uploader" class="dropzone">
-            <div class="dz-message">Drop your awesome photos here! (or click)</div>
-        </div>
-        <br>
-        <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
-        <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Submit</button>
-        <div>* = required</div>
-    </form>
-    {% else %}
+    </div>
     <br>
-    <form action="/view_one?stream={{ stream_name }}&action=substribe" method="post">
-        <input type="submit" name="submit_btn">
+    <div>
+        <form action="/view_one?stream={{ stream_name }}&action=geoview" method="post">
+        <button class="btn btn-info btn-lg" type="submit" id="geoview_btn">Geo View</button>
     </form>
-    {% endif %}
+    </div>
+
+    <div>
+    <br>
+    {% if is_owner %}
+        <div class="container">
+            <form class="form-group" method="post" enctype="multipart/form-data">
+            <div id="uploader" class="dropzone">
+                <div class="dz-message">Drop your awesome photos here! (or click)</div>
+            </div>
+            <br>
+            <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
+            <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Confirm Upload</button>
+            <div>* = required</div>
+            </form>
+            </div>
+   {% endif %}
+    <br>
+    <form action="/view_one?stream={{ stream_name }}&action=subscribe" method="post">
+        <button class="btn btn-primary btn-lg" type="submit" id="subscribe_btn">Subscribe this stream</button>
+    </form>
+    </div>
+
+    </body>
 {% endblock %}
 

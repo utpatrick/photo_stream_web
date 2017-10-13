@@ -1,0 +1,15 @@
+.hide_all{
+    border-style:hidden;
+    overflow：scroll;
+}
+
+.table nowrap{
+    border="0" ;
+    width="100%";
+}
+
+#stream_id{
+    align="center";
+    height="200";
+    width="200";
+}
