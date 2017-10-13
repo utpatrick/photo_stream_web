@@ -1,20 +1,15 @@
 {% extends "templates/base.html" %}
 {% block content %}
 
-    <style type="text/css">
-        tr.hide_all > td, td.hide_all{
-        border-style:hidden;
-        overflow：scroll;
-        }
-    </style>
+    <link href="/static/css/view_all_page.css" rel="stylesheet" type="text/css">
 
-    <table id="stream-all" class="table nowrap" border="0" width="100%">
+    <table id="stream-all" class="table nowrap">
         <tbody>
             <tr class="hide_all">
             {% for s in streams %}
                 <form action="" method="post">
                     <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-                        <input name="stream_id" align="center" class="" type="image" value="{{ s.stream_name }}" src="{{ s.cover_image }}" height = 200 width = 200>
+                        <input id = "stream_id" name="stream_id" class="" type="image" value="{{ s.stream_name }}" src="{{ s.cover_image }}" height="200" width="200">
                         <br>
                         <br>
                     </div>

@@ -12,6 +12,7 @@
     <body>
     <h3 class="text-center">{{ stream_name }} photo stream</h3>
     <br>
+
     <div>
     {% if img_ids|length <1 %}
         {% if is_owner %}
@@ -24,11 +25,11 @@
     {% else %}
         {% set count = 1 %}
         {% for img_id in img_ids %}
-            {% if count % 6 == 0 %}
-                <div class="img-containerNewLine">
+            {% if count <= 3 %}
+                <div class="col-md-4 col-xs-6 thumb">
                     <div class="image-set">
                         <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
-                            <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}">
+                            <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}" height = 200 width = 200>
                         </a>
                         <p>{{ img_id.title }}</p>
                     </div>
@@ -36,10 +37,7 @@
             {% else %}
                 <div class="img-container">
                     <div class="image-set">
-                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
-                            <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}">
-                        </a>
-                        <p>{{ img_id.title }}</p>
+                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set"></a>
                     </div>
                 </div>
             {% endif %}
@@ -50,30 +48,34 @@
         {% endif %}
     {% endif %}
     </div>
+    <br>
+    <div>
+        <form action="/view_one?stream={{ stream_name }}&action=geoview" method="post">
+        <button class="btn btn-info btn-lg" type="submit" id="geoview_btn">Geo View</button>
+    </form>
+    </div>
 
     <div>
     <br>
-    <form action="/view_one?stream={{ stream_name }}&action=geoview" method="post">
-        <button class="btn btn-info btn-lg" type="submit" id="geoview_btn">Geo View</button>
-    </form>
-    <br>
-
     {% if is_owner %}
-    <form class="form-group" method="post" enctype="multipart/form-data">
-        <div id="uploader" class="dropzone">
-            <div class="dz-message">Drop your awesome photos here! (or click)</div>
-        </div>
-        <br>
-        <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
-        <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Confirm Upload</button>
-        <div>* = required</div>
-    </form>
+        <div class="container">
+            <form class="form-group" method="post" enctype="multipart/form-data">
+            <div id="uploader" class="dropzone">
+                <div class="dz-message">Drop your awesome photos here! (or click)</div>
+            </div>
+            <br>
+            <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
+            <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Confirm Upload</button>
+            <div>* = required</div>
+            </form>
+            </div>
    {% endif %}
     <br>
     <form action="/view_one?stream={{ stream_name }}&action=subscribe" method="post">
         <button class="btn btn-primary btn-lg" type="submit" id="subscribe_btn">Subscribe this stream</button>
     </form>
     </div>
+
     </body>
 {% endblock %}
 

@@ -158,7 +158,7 @@ class ViewOnePage(webapp2.RequestHandler):
         stream_name = self.request.get('stream')
         comment = self.request.get('comment')
         action = self.request.get('action', '')
-        loaded_photo = self.request.get('loaded', default_value='3')
+        loaded_photo = self.request.get('loaded', default_value='9')
         loaded_photo = int(loaded_photo)
 
         if action == 'upload':
@@ -185,7 +185,7 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
-        loaded_photo = self.request.get('loaded', default_value='3')
+        loaded_photo = self.request.get('loaded', default_value='9')
 
         photos = model.get_photo_by_stream(stream_name)
 
