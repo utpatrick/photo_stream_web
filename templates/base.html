@@ -1,107 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-
-        <meta charset="utf-8">
-
-        <title>Connex.us</title>
-
-        <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-
-        <script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
-
-        <link href="/static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-
-        <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-
-        <link href="/static/css/base.css" rel="stylesheet">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
 
+    <title>Connexus</title>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
-        <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-        <script>var stream_names = {{stream_names | safe}};</script>
-        <script>
-        $(function() {
-        $("#search_str").autocomplete({
-            source: stream_names,
-            select: function(event,ui) {
-                $('#search_str').val($("autocomplete").val());
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet">
+    <link href="/static/css/custom-styles.css" rel="stylesheet">
+    <link href="/static/css/image-effects.css" rel="stylesheet">
+    <link href="/static/css/component.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/font-awesome.css">
+
+    <script src="/static/js/html5shiv.js"></script>
+    <script src="/static/js/respond.min.js"></script>
+    <script src="/static/js/modernizr.custom.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        var stream_names = {{ stream_names | safe }};
+        $(function () {
+            $("#search_str").autocomplete({
+                source: stream_names,
+                select: function (event, ui) {
+                    $('#search_str').val($("autocomplete").val());
                 }
             });
         });
-        </script>
-        <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
+    </script>
+    <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
 
-    </head>
+</head>
 
-    <body>
-        <!-- Navigation -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-fixed-top">
-            <div class="navbar-inner">
-                <div class="container">
-                    <a class="navbar-brand" href="/">Connex.us</a>
-                </div>
+<body>
+    <div class="container page-styling">
+        <div class="header-wrapper">
+            <div class="site-name">
+                <h1>
+                    <a href="/">
+                        Connexus
+                    </a>
+                </h1>
             </div>
-
-            <div class="container">
-            <form action="/search" method="post" class="form-inline" role="form">
-                <div class="form-group">
-                    <input type="text" id="search_str"size="25%" value="" name="search_str" class="form-control" placeholder="Type search keywords here">
-                </div>
-                <div class="form-group">
-                <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">&nbsp;<i class="glyphicon glyphicon-search"></i> Search &nbsp;</button>
-                </div>
-            </form>
-        
-
-    <!-- Header -->
-
-            <ul class="navbar-nav ml-auto">
+            <div class="signin">
                 <a href="{{ url|safe }}" class="btn float-right">
                     <span class="network-name">{{ url_linktext }}</span>
                 </a>
-            </ul>
             </div>
-        </nav>
+            <div class="menu">
+                <div class="navbar">
 
-        <!-- Header -->
-
-        <header class="menu-header">
-            <div class="container">
-                <ul class="list-inline menu-button">
-                    <li class="list-inline-item">
-                        <a href="/manage" class="btn btn-secondary btn-lg">
-                            <span class="network-name">Manage</span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="/create" class="btn btn-secondary btn-lg">
-                            <span class="network-name">Create</span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="/view" class="btn btn-secondary btn-lg">
-                            <span class="network-name">View</span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="/trending" class="btn btn-secondary btn-lg">
-                            <span class="network-name">Trending</span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="/social" class="btn btn-secondary btn-lg">
-                            <span class="network-name">Social</span>
-                        </a>
-                    </li>
-                </ul>
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav ">
+                            <li><a href="/manage">Manage</a></li>
+                            <li><a href="/view">View</a></li>
+                            <li><a href="/create">Create</a></li>
+                            <li><a href="/trending">Trending</a></li>
+                            <li><a href="/social">Social</a></li>
+                            <li>
+                                <form action="/search" method="post" class="form-inline" role="form">
+                                    <div class="form-group">
+                                        <input type="text" id="search_str" size="25%" value="" name="search_str" class="form-control"
+                                               placeholder="Type search keywords here">
+                                    </div>
+                                    <div class="form-group">
+                                        <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">&nbsp;<i
+                                                class="glyphicon glyphicon-search"></i> Search &nbsp;
+                                        </button>
+                                    </div>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mini-menu">
+                    <label>
+                        <select class="selectnav">
+                            <option value="/manage">Manage</option>
+                            <option value="/view">View</option>
+                            <option value="/create">Create</option>
+                            <option value="/trending">Trending</option>
+                            <option value="/social">Social</option>
+                        </select>
+                    </label>
+                </div>
             </div>
-        </header>
+        </div>
         <div id="content" class="container">{% block content %}{% endblock %}</div>
-    </body>
+    </div>
+</body>
 </html>

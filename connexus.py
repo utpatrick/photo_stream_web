@@ -33,8 +33,11 @@ class MainLoginPage(webapp2.RequestHandler):
     def get(self):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
+        stream_names = []
+        for stream in model.search_stream(""):
+            stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'Log in before browsing this website!'
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/main_login_page.html')
@@ -69,7 +72,7 @@ class ManagePage(webapp2.RequestHandler):
         template_input = {
             'streams': streams,
             'sub_streams': sub_streams,
-            'stream_names':stream_names
+            'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/manage_page.html')
@@ -100,7 +103,6 @@ class CreatePage(webapp2.RequestHandler):
             return
 
         template_value = {
-            'greeting': 'this is the create page',
 
         }
         template = JINJA_ENVIRONMENT.get_template('templates/create_page.html')
@@ -115,7 +117,6 @@ class CreatePage(webapp2.RequestHandler):
         for stream in model.search_stream(""):
             stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the the create page',
             'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)
@@ -140,7 +141,6 @@ class ViewPage(webapp2.RequestHandler):
         for stream in model.search_stream(""):
             stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the view page',
             'streams': streams,
             'stream_names': stream_names
         }
@@ -174,7 +174,7 @@ class ViewOnePage(webapp2.RequestHandler):
             model.subscribe_to_stream(stream_name, user.user_id())
         elif action == 'more':
             loaded_photo += 3
-        elif status == "Geo View":
+        elif action == "Geo View":
             self.redirect('/geo_view?stream=' + stream_name)
             return
         # should use ancestor query, will change it later
@@ -325,7 +325,6 @@ class SearchPage(webapp2.RequestHandler):
         for stream in streams :
             stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the search page',
             'stream_list': stream_found,
             'stream_names': stream_names
         }
@@ -379,7 +378,6 @@ class TrendingPage(webapp2.RequestHandler):
             logged_in = False
 
         template_input = {
-            'greeting': 'this is the trending page',
             'logged_in': logged_in,
             'trending_setting': trending_setting,
             'trending_streams': sorted_streams,
@@ -405,7 +403,6 @@ class SocialPage(webapp2.RequestHandler):
         for stream in streams:
             stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the social page',
             'stream_names': stream_names
         }
         template_values = model.merge_two_dicts(template_input, url_dict)

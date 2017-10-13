@@ -1,6 +1,17 @@
 {% extends "templates/base.html" %}
 {% block content %}
-    <p class="important">
-      {{greeting}}
-    </p>
+    <div class="banner">
+        <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="item active">
+                    <img src="/static/images/UT.jpg" alt="" class="">
+                    <div class="carousel-caption">
+                        <i class="fw-icon-pencil"></i>
+                        <h2>Share with Us</h2>
+                        <h1>Your awesome photos</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
