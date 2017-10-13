@@ -2,7 +2,6 @@
 
 # [START imports]
 import os
-import urllib
 import model
 import time
 import re
@@ -10,9 +9,9 @@ import json
 import datetime
     
 from google.appengine.api import users
+from google.appengine.ext import blobstore
 from google.appengine.ext import ndb
-from google.appengine.api import mail
-from google.appengine.api import search
+from google.appengine.ext.webapp import blobstore_handlers
 from dateutil.relativedelta import relativedelta
 
 import jinja2
@@ -158,7 +157,7 @@ class ViewOnePage(webapp2.RequestHandler):
         stream_name = self.request.get('stream')
         comment = self.request.get('comment')
         action = self.request.get('action', '')
-        loaded_photo = self.request.get('loaded', default_value='3')
+        loaded_photo = self.request.get('loaded', default_value='9')
         loaded_photo = int(loaded_photo)
 
         if action == 'upload':
@@ -174,7 +173,7 @@ class ViewOnePage(webapp2.RequestHandler):
             model.subscribe_to_stream(stream_name, user.user_id())
         elif action == 'more':
             loaded_photo += 3
-        elif action == "Geo View":
+        elif action == "geoview":
             self.redirect('/geo_view?stream=' + stream_name)
             return
         # should use ancestor query, will change it later
@@ -185,7 +184,7 @@ class ViewOnePage(webapp2.RequestHandler):
         user = users.get_current_user()
         url_dict = model.check_if_login(self, user)
         stream_name = self.request.get('stream')
-        loaded_photo = self.request.get('loaded', default_value='3')
+        loaded_photo = self.request.get('loaded', default_value='9')
 
         photos = model.get_photo_by_stream(stream_name)
 
@@ -193,21 +192,14 @@ class ViewOnePage(webapp2.RequestHandler):
         model.shuffle_stream_geo_info(stream_name)
         time.sleep(0.1)
 
-        photo_ids = sorted(photos, key=lambda x: x.last_update, reverse=True)
+        photos = sorted(photos, key=lambda x: x.last_update, reverse=True)
 
         current_date = datetime.datetime.utcnow().date()
         a_year_before = current_date + relativedelta(years=-1)
-
-        loaded_photo = int(loaded_photo)
-
-        loaded_photo = int(loaded_photo)
-        more = loaded_photo < len(photo_ids)
-        if not more:
-            nums_photo = len(photo_ids)
-        else:
-            nums_photo = loaded_photo
-            
-        photo_ids = photo_ids[:nums_photo]
+        more = loaded_photo < len(photos)
+        photo_key = []
+        for i in range(min(loaded_photo, len(photos))):
+            photo_key.append(photos[i].blob_key)
 
         if user:
             is_owner = model.get_stream_by_name(stream_name).owner == model.get_user(user.user_id()).key
@@ -218,17 +210,18 @@ class ViewOnePage(webapp2.RequestHandler):
         stream_names = []
         for stream in model.search_stream(""):
             stream_names.append(str(stream.stream_name))
+
+        upload_url = blobstore.create_upload_url('/upload_image')
         template_input = {
             'is_owner': is_owner,
-            'img_ids': photo_ids,
+            'img_ids': photo_key,
+            'upload_url': upload_url,
             'more': more,
             'stream_name': stream_name,
             'loaded': loaded_photo,
             'stream_names': stream_names,
             'current_date': current_date.strftime("%Y, %m, %d"),
             'a_year_before': a_year_before.strftime("%Y, %m, %d")
-
-
         }
 
         template_values = model.merge_two_dicts(template_input, url_dict)
@@ -242,9 +235,9 @@ class GeoViewPage(webapp2.RequestHandler):
     def post(self):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
-        status = self.request.get('submit_btn')
+        action = self.request.get('action', '')
 
-        if status == "Subscribe this stream":
+        if action == "subscribe":
             if user:
                 model.subscribe_to_stream(stream_name, user.user_id())
             else:
@@ -331,9 +324,6 @@ class SearchPage(webapp2.RequestHandler):
         template_values = model.merge_two_dicts(template_input, url_dict)
         template = JINJA_ENVIRONMENT.get_template('templates/search_page.html')
         self.response.write(template.render(template_values))
-
-
-
 # [END search page]
 
 
@@ -420,11 +410,11 @@ class ErrorPage(webapp2.RequestHandler):
         stream_name = self.request.get('stream')
         photo = self.request.get('photo')
 
+        streams = model.search_stream("")
         stream_names = []
         for stream in streams:
             stream_names.append(str(stream.stream_name))
         template_input = {
-            'greeting': 'this is the error page',
             'error_message': 'stream name: '+ stream_name + ' is already occupied!',
             'stream_names': stream_names
         }
@@ -436,17 +426,34 @@ class ErrorPage(webapp2.RequestHandler):
 # [END error page]
 
 
-class Image(webapp2.RequestHandler):
+class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
+
+    def post(self):
+        counts = self.request.get('counts')
+        user = users.get_current_user()
+        stream_name = self.request.get('stream')
+        loaded_photo = self.request.get('loaded_photo')
+        if counts:
+            for i in range(int(counts)):
+                title = self.request.get('title[' + str(i) + ']')
+                content = self.get_uploads('image[' + str(i) + ']')[0]
+                print(content.key())
+                result = model.add_photo(user.user_id(), stream_name, title, content.key())
+                if result:
+                    self.redirect('/error?photo=invalid')
+                    return
+        time.sleep(0.25)
+        self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
+
+
+class ViewPhotoHandler(blobstore_handlers.BlobstoreDownloadHandler):
 
     def get(self):
-        img_id_url_safe = self.request.get('img_id')
-        if img_id_url_safe:
-            photo = ndb.Key(urlsafe=img_id_url_safe)
-            self.response.headers['Content-Type'] = 'image/png'
-            self.response.out.write(photo.get().content)
+        image_id = self.request.get('img_id')
+        if image_id:
+            self.send_blob(image_id)
         else:
-            self.response.out.write('No image')
-
+            self.redirect('error?photo=invalid')
 
 
 class UpdateTrendingPage(webapp2.RequestHandler):
@@ -469,7 +476,6 @@ class SendDigest24Hr(webapp2.RequestHandler):
         model.send_digest_24_hr()
 
 
-
 # [START app]
 app = webapp2.WSGIApplication([
     ('/', MainLoginPage),
@@ -482,10 +488,11 @@ app = webapp2.WSGIApplication([
     ('/trending', TrendingPage),
     ('/social', SocialPage),
     ('/error', ErrorPage),
-    ('/image', Image),
     ('/updatetrending',UpdateTrendingPage),
     ('/digest5min', SendDigest5Min),
     ('/digest1hr', SendDigest1Hr),
-    ('/digest24hr', SendDigest24Hr)
+    ('/digest24hr', SendDigest24Hr),
+    ('/upload_image', PhotoUploadHandler),
+    ('/view_image', ViewPhotoHandler)
 ], debug=True)
 # [END app]

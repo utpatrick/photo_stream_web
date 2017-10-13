@@ -31,14 +31,14 @@
 
         <p>
             <label for="amount">Date range:</label>
-            <input type="text" id="amount" readonly style="border:0; color:#f6931f; font-weight:bold;">
+            <input type="text" id="amount" readonly style="background: transparent; border:0; color:#f6931f; font-weight:bold;">
         </p>
 
         <div id="slider-range"></div>
 
         <br>
-        <form action="/geo_view?stream={{ stream_name }}" method="post" enctype="multipart/form-data">
-            <input type="submit" name="submit_btn" value="Subscribe this stream">
+        <form action="/geo_view?stream={{ stream_name }}&action=subscribe" method="post">
+            <button class="btn btn-primary btn-lg" type="submit" id="subscribe_btn">Subscribe this stream</button>
         </form>
 
     </body>

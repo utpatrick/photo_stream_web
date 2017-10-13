@@ -19,20 +19,9 @@
     <script src="/static/js/html5shiv.js"></script>
     <script src="/static/js/respond.min.js"></script>
     <script src="/static/js/modernizr.custom.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="/static/js/lightbox-plus-jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <script>
-        var stream_names = {{ stream_names | safe }};
-        $(function () {
-            $("#search_str").autocomplete({
-                source: stream_names,
-                select: function (event, ui) {
-                    $('#search_str').val($("autocomplete").val());
-                }
-            });
-        });
-    </script>
+
     <link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.11.2/themes/smoothness/jquery-ui.css">
 
 
@@ -77,9 +66,7 @@
                                                placeholder="Type search keywords here">
                                     </div>
                                     <div class="form-group">
-                                        <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">&nbsp;<i
-                                                class="glyphicon glyphicon-search"></i> Search &nbsp;
-                                        </button>
+                                        <button id="search_btn" class="btn btn-primary" name="submit_btn" value="go_search">Search</button>
                                     </div>
                                 </form>
                             </li>
@@ -102,4 +89,16 @@
         <div id="content" class="container">{% block content %}{% endblock %}</div>
     </div>
 </body>
+
+    <script>
+        var stream_names = {{ stream_names | safe }};
+        $(function () {
+            $("#search_str").autocomplete({
+                source: stream_names,
+                select: function (event, ui) {
+                    $('#search_str').val($("autocomplete").val());
+                }
+            });
+        });
+    </script>
 </html>
