@@ -9,18 +9,39 @@
 }
 
 .img-container {
-    width: 200px;
+    width: auto;
     height: auto;
-    overflow: hidden;
-    padding: 10px;
-    margin: 10px;
-    float: left;
-    position:relative
+    overflow: auto;
+    vertical-align: bottom;
+    display: inline-block;
 }
 
-.img-containerNewLine {
-    clear: both;
+.img-containerElem{
+    padding: 20px;
+    margin: 20px;
     float: left;
-    display: block;
+}
+
+.photo-container {
+    overflow: auto;
     position: relative;
+}
+
+#photo_id {
+    height: auto;
+    width: 200px;
+}
+
+.example-image-link {
+  display: inline-block;
+  padding: 2px;
+  margin: 0 0.5rem 1rem 0.5rem;
+  background-color: #fff;
+  line-height: 0;
+  border-radius: 4px;
+  transition: background-color 0.5s ease-out; }
+
+.example-image-link:hover {
+    background-color: #4ae;
+    transition: none;
 }

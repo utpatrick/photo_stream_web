@@ -13,7 +13,7 @@
     <h3 class="text-center">{{ stream_name }} photo stream</h3>
     <br>
 
-    <div>
+    <div class="photo-container">
     {% if img_ids|length <1 %}
         {% if is_owner %}
             <h4 class="text-center">You don't have any photo yet, upload some!</h4>
@@ -24,35 +24,30 @@
         {% endif %}
     {% else %}
         {% set count = 1 %}
-        {% for img_id in img_ids %}
-            {% if count <= 3 %}
-                <div class="col-md-4 col-xs-6 thumb">
-                    <div class="image-set">
-                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
-                            <img class="img_display img-thumbnail" src="/image?img_id={{ img_id.key.urlsafe() }}" height = 200 width = 200>
-                        </a>
-                        <p>{{ img_id.title }}</p>
-                    </div>
-                </div>
-            {% else %}
-                <div class="img-container">
-                    <div class="image-set">
-                        <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set"></a>
-                    </div>
-                </div>
-            {% endif %}
-            {% set count = count + 1 %}
-        {% endfor %}
+        <div class="img-container">
+            <div class="img-containerElem">
+                {% for img_id in img_ids %}
+                    {% if count <= 4 %}
+                                <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set">
+                                    <input id="photo_id" name="photo_id" type="image" class="example-image-link" src="/image?img_id={{ img_id.key.urlsafe() }}">
+                                </a>
+                    {% else %}
+                                <a href="/image?img_id={{ img_id.key.urlsafe() }}" class="pop" data-lightbox="set"></a>
+                    {% endif %}
+                    {% set count = count + 1 %}
+                {% endfor %}
+            </div>
+        </div>
 
         {% if more %}
         {% endif %}
     {% endif %}
     </div>
-    <br>
+
     <div>
         <form action="/view_one?stream={{ stream_name }}&action=geoview" method="post">
-        <button class="btn btn-info btn-lg" type="submit" id="geoview_btn">Geo View</button>
-    </form>
+            <button class="btn btn-info btn-lg" type="submit" id="geoview_btn">Geo View</button>
+        </form>
     </div>
 
     <div>
