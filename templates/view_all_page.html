@@ -2,22 +2,19 @@
 {% block content %}
 
     <link href="/static/css/view_all_page.css" rel="stylesheet" type="text/css">
-
-    <table id="stream-all" class="table nowrap">
-        <tbody>
-            <tr class="hide_all">
-            {% for s in streams %}
-                <form action="" method="post">
-                    <div class="col-lg-3 col-md-4 col-xs-6 thumb">
-                        <input id = "stream_id" name="stream_id" class="" type="image" value="{{ s.stream_name }}" src="{{ s.cover_image }}" height="200" width="200">
-                        <br>
-                        <br>
+    <div>
+            <form action="" method="post">
+                <div class="img-container">
+                    <div class="img-containerElem">
+                    {% for s in streams %}
+                        <input id="stream_id" name="stream_id"
+                               class="example-image-link" type="image"
+                               value="{{ s.stream_name }}" src="{{ s.cover_image }}">
+                    {% endfor %}
                     </div>
-                </form>
-            {% endfor %}
-            </tr>
-        </tbody>
-    </table>
+                </div>
+            </form>
+    </div>
 
     <p class="important">
         {{greeting}}
