@@ -1,17 +1,11 @@
-from google.appengine.api import images
 from google.appengine.ext import ndb
-from google.appengine.api import search
-from google.appengine.api import app_identity
 from google.appengine.api import users
 from google.appengine.api import mail
+from math import radians, cos, sin, asin, sqrt
 from faker import Faker
 
-import os
-import webapp2
-import time
 import datetime
-import re
-import json
+
 
 
 
@@ -289,6 +283,7 @@ def get_cover_image_url(stream_name):
     stream = get_stream_by_name(stream_name)
     return stream.cover_image
 
+
 def shuffle_stream_geo_info(stream_name):
     fake_gps = Faker()
     photos = get_photo_by_stream(stream_name)
@@ -296,3 +291,38 @@ def shuffle_stream_geo_info(stream_name):
         photo.geo_info = ndb.GeoPt(fake_gps.latitude(), fake_gps.longitude())
         photo.put()
 
+
+def get_stream_name_by_image_key(key):
+    photo = Photo.query(Photo.blob_key == key)
+    if photo:
+        return photo.get().up_stream.stream_name
+
+
+def get_nearby_image(latitude, longitude, start, count):
+    photos = Photo.query().fetch()
+    sorted(photos, key=lambda photo: get_distance(longitude, latitude, photo.geo_info.lon, photo.geo_info.lat))
+    return photos[start:(start + count)]
+
+
+def user_email_to_user_id(email):
+    user = User.query(User.user_email == email)
+    print(email)
+    if user and user.get():
+        return user.get().user_id
+
+
+def get_distance(lon1, lat1, lon2, lat2):
+    """
+    Calculate the great circle distance between two points
+    on the earth
+    """
+    # convert decimal degrees to radians
+    lon1, lat1, lon2, lat2 = map(radians, [lon1, lat1, lon2, lat2])
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    # Radius of earth in kilometers is 6371
+    km = 6371* c
+    return km
