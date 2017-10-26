@@ -63,6 +63,12 @@ def get_stream_by_name(stream_name):
     return stream.get()
 
 
+def get_stream_owner_by_name(stream_name):
+    stream = get_stream_by_name(stream_name)
+    owner_email = stream.owner.get().user_email
+    return owner_email
+
+
 def get_all_stream():
     stream = Stream.query()
     return stream.fetch()
