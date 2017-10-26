@@ -10,7 +10,6 @@ import datetime
     
 from google.appengine.api import users
 from google.appengine.ext import blobstore
-from google.appengine.ext import ndb
 from google.appengine.ext.webapp import blobstore_handlers
 from dateutil.relativedelta import relativedelta
 
@@ -61,6 +60,7 @@ class ManagePage(webapp2.RequestHandler):
 
     def get(self):
         user = users.get_current_user()
+        print(user.user_id)
         url_dict = model.check_if_login(self, user)
         streams = model.get_stream_list_by_user(user.user_id())
         sub_streams = model.get_subscribed_stream(user.user_id())

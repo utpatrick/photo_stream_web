@@ -11,6 +11,15 @@ handlers:
 - url: /static
   static_dir: static
 
+- url: /android/view_all_streams
+  script: android_handler.app
+
+- url: /android/view_all_images
+  script: android_handler.app
+
+- url: /android/view_nearby_images
+  script: android_handler.app
+
 - url: /
   script: connexus.app
 
