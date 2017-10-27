@@ -34,6 +34,7 @@ class Photo(ndb.Model):
     title = ndb.StringProperty()
     last_update = ndb.DateTimeProperty(auto_now_add=True)
     # content = ndb.BlobProperty()
+    comments = ndb.StringProperty()
     blob_key = ndb.BlobKeyProperty()
     geo_info = ndb.GeoPtProperty()
 
@@ -246,7 +247,7 @@ def add_photo(user_id, stream_name, title, key):
         return 0
 
 
-def add_photo_geo(user_id, stream_name, title, key, geo):
+def add_photo_geo(user_id, stream_name, title, key, geo, tags):
     user = get_user(user_id)
 
     if not title or not key or not stream_name:
@@ -255,7 +256,7 @@ def add_photo_geo(user_id, stream_name, title, key, geo):
         stream = get_stream_by_name(stream_name)
         stream.photo_counts += 1
         user.photo_counts += 1
-        new_photo = Photo(up_stream=stream.key, title=title, blob_key=key, geo_info=geo)
+        new_photo = Photo(up_stream=stream.key, title=title, blob_key=key, geo_info=geo, comments=tags)
         new_photo.put()
         stream.put()
         user.put()
