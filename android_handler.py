@@ -10,6 +10,7 @@ import webapp2
 from google.appengine.api import users
 from google.appengine.ext import blobstore
 from google.appengine.ext.webapp import blobstore_handlers
+from google.appengine.ext import ndb
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -122,7 +123,14 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         user_id = model.user_email_to_user_id(user_email)
         title = self.request.get('title')
         content = self.get_uploads()[0]
-        model.add_photo(user_id, stream_name, title, content.key())
+        gps = self.request.get('gps')
+        geo_info = ndb.GeoPt(gps)
+        model.add_photo_geo(user_id, stream_name, title, content.key(), geo_info)
+        if content:
+            response_content = {'status': 'ok',
+                                'geo_info': gps}
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(response_content))
 
 
 # [START app]
