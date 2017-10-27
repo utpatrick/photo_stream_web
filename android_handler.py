@@ -123,12 +123,15 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         user_id = model.user_email_to_user_id(user_email)
         title = self.request.get('title')
         content = self.get_uploads()[0]
-        gps = self.request.get('gps')
-        geo_info = ndb.GeoPt(gps)
-        model.add_photo_geo(user_id, stream_name, title, content.key(), geo_info)
+        lat = self.request.get('lat')
+        long = self.request.get('long')
+        tags = self.request.get('tags')
+        geo_info = ndb.GeoPt(float(lat), float(long))
+        model.add_photo_geo(user_id, stream_name, title, content.key(), geo_info, tags)
         if content:
             response_content = {'status': 'ok',
-                                'geo_info': gps}
+                                'lat': lat,
+                                'longG': long}
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(response_content))
 
