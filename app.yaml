@@ -26,6 +26,9 @@ handlers:
 - url: /android/view_nearby_images
   script: android_handler.app
 
+- url: /android/view_sub_images
+  script: android_handler.app
+
 - url: /android/search
   script: android_handler.app
 

@@ -83,6 +83,24 @@ class GetNearbyImages(webapp2.RequestHandler):
             self.response.out.write(json.dumps(response_content))
 
 
+class GetSubImages(webapp2.RequestHandler):
+    def get(self):
+        user_email = self.request.get('user_email')
+        start = int(self.request.get('start'))
+        if not start:
+            start = 0
+        user_id = model.user_email_to_user_id(user_email)
+        photos_list = model.get_sub_images(user_id)
+        photos_list = photos_list[start:start + IMAGE_COUNT]
+        content = [{'title': photo.title,
+                    'key': str(photo.blob_key),
+                    'stream_name': photo.up_stream.get().stream_name} for photo in photos_list]
+        response_content = {'start': start,
+                            'content': content}
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(response_content))
+
+
 class PhotoUploadImageUrl(webapp2.RequestHandler):
     def get(self):
         upload_url = blobstore.create_upload_url('/android/upload_image')
@@ -105,7 +123,8 @@ app = webapp2.WSGIApplication([
     ('/android/view_all_streams', GetAllStreams),
     ('/android/view_all_images', GetAllImages),
     ('/android/view_nearby_images', GetNearbyImages),
-    ('/android/search', SearchStreams)
+    ('/android/view_sub_images', GetSubImages),
+    ('/android/search', SearchStreams),
     ('/android/upload_image', PhotoUploadHandler),
     ('/android/upload_image_url', PhotoUploadImageUrl)
 ], debug=True)
