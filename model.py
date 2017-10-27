@@ -312,10 +312,17 @@ def get_nearby_image(latitude, longitude, start, count):
 
 def user_email_to_user_id(email):
     user = User.query(User.user_email == email)
-    print(email)
     if user and user.get():
         return user.get().user_id
 
+
+def get_sub_images(user_id):
+    stream_list = get_subscribed_stream(user_id)
+    photo_list = []
+    if stream_list:
+        for stream in stream_list:
+            photo_list.extend(get_photo_by_stream(stream.stream_name))
+        return photo_list
 
 def get_distance(lon1, lat1, lon2, lat2):
     """
