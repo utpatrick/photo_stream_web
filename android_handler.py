@@ -32,7 +32,13 @@ class GetAllStreams(webapp2.RequestHandler):
 class SearchStreams(webapp2.RequestHandler):
     def get(self):
         keyword = self.request.get('keyword')
-        streams = model.search_stream(keyword)
+        streams = []
+        stream_all = model.get_all_stream()
+        for i in stream_all:
+            if i.stream_name.find(keyword) != -1:
+                streams.append(i)
+                print(i)
+
         response_content = [{'stream_name': s.stream_name, 'cover_image': s.cover_image} for s in streams]
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(json.dumps(response_content))
@@ -117,6 +123,7 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         title = self.request.get('title')
         content = self.get_uploads()[0]
         model.add_photo(user_id, stream_name, title, content.key())
+
 
 # [START app]
 app = webapp2.WSGIApplication([
