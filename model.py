@@ -246,6 +246,22 @@ def add_photo(user_id, stream_name, title, key):
         return 0
 
 
+def add_photo_geo(user_id, stream_name, title, key, geo):
+    user = get_user(user_id)
+
+    if not title or not key or not stream_name:
+        return 1
+    else:
+        stream = get_stream_by_name(stream_name)
+        stream.photo_counts += 1
+        user.photo_counts += 1
+        new_photo = Photo(up_stream=stream.key, title=title, blob_key=key, geo_info=geo)
+        new_photo.put()
+        stream.put()
+        user.put()
+        return 0
+
+
 def get_photo(img_key):
     photo = img_key.get()
     return photo
@@ -294,7 +310,10 @@ def shuffle_stream_geo_info(stream_name):
     fake_gps = Faker()
     photos = get_photo_by_stream(stream_name)
     for photo in photos:
-        photo.geo_info = ndb.GeoPt(fake_gps.latitude(), fake_gps.longitude())
+        if photo.geo_info:
+            continue
+        else:
+            photo.geo_info = ndb.GeoPt(fake_gps.latitude(), fake_gps.longitude())
         photo.put()
 
 
