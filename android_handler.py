@@ -29,6 +29,15 @@ class GetAllStreams(webapp2.RequestHandler):
         self.response.out.write(json.dumps(response_content))
 
 
+class SearchStreams(webapp2.RequestHandler):
+    def get(self):
+        keyword = self.request.get('keyword')
+        streams = model.search_stream(keyword)
+        response_content = [{'stream_name': s.stream_name, 'cover_image': s.cover_image} for s in streams]
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(json.dumps(response_content))
+
+
 class GetAllImages(webapp2.RequestHandler):
     def get(self):
         stream_name = self.request.get('stream_name')
@@ -64,7 +73,7 @@ class GetNearbyImages(webapp2.RequestHandler):
             self.response.set_status(404)
         else:
             images = model.get_nearby_image(float(latitude), float(longitude), start, IMAGE_COUNT)
-            images = images[start:start+IMAGE_COUNT]
+            images = images[start:start + IMAGE_COUNT]
             content = [{'title': img.title,
                         'key': str(img.blob_key),
                         'stream_name': img.up_stream.get().stream_name} for img in images]
@@ -96,6 +105,7 @@ app = webapp2.WSGIApplication([
     ('/android/view_all_streams', GetAllStreams),
     ('/android/view_all_images', GetAllImages),
     ('/android/view_nearby_images', GetNearbyImages),
+    ('/android/search', SearchStreams)
     ('/android/upload_image', PhotoUploadHandler),
     ('/android/upload_image_url', PhotoUploadImageUrl)
 ], debug=True)
