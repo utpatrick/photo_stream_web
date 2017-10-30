@@ -26,6 +26,7 @@ Dropzone.options.uploader = {
                 formData.append("loaded", $("#loaded_image").attr("data-name"));
             }
             formData.append("counts", this.files.length);
+            formData.append("action", "upload");
             for (var i = 0; i < this.files.length; i++) {
                 formData.append("title[" + i + "]", this.files[i].name);
             }
@@ -38,5 +39,6 @@ Dropzone.options.uploader = {
     },
     success: function () {
         this.removeAllFiles();
+        location.reload();
     }
 };

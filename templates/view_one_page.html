@@ -53,7 +53,6 @@
         <form action="/view_one?stream={{ stream_name }}&action=geoview" method="post">
             <button class="btn btn-success btn-lg" type="submit" id="geoview_btn">Geo View</button>
         </form>
-
     </div>
 
     <div>
@@ -61,13 +60,13 @@
     {% if is_owner %}
         <div class="container">
             <form class="form-group" method="post" enctype="multipart/form-data">
-            <div id="uploader" class="dropzone">
-                <div class="dz-message">Drop your awesome photos here! (or click)</div>
-            </div>
-            <br>
-            <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
-            <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Confirm Upload</button>
-            <div>* = required</div>
+                <div id="uploader" class="dropzone">
+                    <div class="dz-message">Drop your awesome photos here! (or click)</div>
+                </div>
+                <br>
+                <button class="btn btn-secondary btn-lg" id="reset_btn">Clear Selection</button>
+                <button class="btn btn-primary btn-lg" type="submit" id="submit_btn">Confirm Upload</button>
+                <div>* = required</div>
             </form>
             </div>
    {% endif %}
