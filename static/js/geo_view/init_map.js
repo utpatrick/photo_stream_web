@@ -44,7 +44,7 @@ function initMap() {
             gps["lat"] = lat;
             gps["lng"] = lon;
 
-            var parsed_url = '/image?img_id=' + geo_photo[i].key_url;
+            var parsed_url = '/view_image?img_id=' + geo_photo[i].key;
 
             marker = new google.maps.Marker({
                 position: gps,

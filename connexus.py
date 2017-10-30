@@ -164,14 +164,20 @@ class ViewOnePage(webapp2.RequestHandler):
         loaded_photo = self.request.get('loaded', default_value='9')
         loaded_photo = int(loaded_photo)
 
+        print(action)
+
         if action == 'upload':
             counts = self.request.get('counts')
             for i in range(int(counts)):
                 title = self.request.get('title[' + str(i) + ']')
                 content = self.request.get('image[' + str(i) + ']')
                 result = model.add_photo(user.user_id(), stream_name, title, comment, content)
+                print("I'm here")
                 if result:
                     self.redirect('/error?photo=invalid')
+                    return
+                else:
+                    self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
                     return
         elif action == 'subscribe':
             model.subscribe_to_stream(stream_name, user.user_id())
@@ -279,7 +285,7 @@ class GeoViewPage(webapp2.RequestHandler):
             temp = {'geo_info': (photo.geo_info.lat, photo.geo_info.lon),
                     'last_update': photo.last_update.strftime("%Y, %m, %d"),
                     'key_url': photo.key.urlsafe(),
-                    'key': photo.key.id()}
+                    'key': str(photo.blob_key)}
             geo_info.append(temp)
 
         model.add_view_counts(stream_name)
@@ -443,6 +449,7 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
         user = users.get_current_user()
         stream_name = self.request.get('stream')
         loaded_photo = self.request.get('loaded_photo')
+        action = self.request.get('action')
         if counts:
             for i in range(int(counts)):
                 title = self.request.get('title[' + str(i) + ']')
@@ -452,8 +459,11 @@ class PhotoUploadHandler(blobstore_handlers.BlobstoreUploadHandler):
                 if result:
                     self.redirect('/error?photo=invalid')
                     return
-        time.sleep(0.25)
-        self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
+            time.sleep(0.25)
+            #print("i'm here mom")
+            #self.redirect('/view_one?stream=' + stream_name + '&loaded=' + str(loaded_photo))
+            #print("this is weird")
+
 
 
 class ViewPhotoHandler(blobstore_handlers.BlobstoreDownloadHandler):
