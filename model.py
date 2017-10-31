@@ -326,8 +326,8 @@ def get_stream_name_by_image_key(key):
 
 def get_nearby_image(latitude, longitude, start, count):
     photos = Photo.query().fetch()
-    sorted(photos, key=lambda photo: get_distance(longitude, latitude, photo.geo_info.lon, photo.geo_info.lat))
-    return photos[start:(start + count)]
+    sorted_photos = sorted(photos, key=lambda x: get_distance(longitude, latitude, x.geo_info.lon, x.geo_info.lat))
+    return sorted_photos[start:(start + count)]
 
 
 def user_email_to_user_id(email):
@@ -343,6 +343,7 @@ def get_sub_images(user_id):
         for stream in stream_list:
             photo_list.extend(get_photo_by_stream(stream.stream_name))
         return photo_list
+
 
 def get_distance(lon1, lat1, lon2, lat2):
     """
